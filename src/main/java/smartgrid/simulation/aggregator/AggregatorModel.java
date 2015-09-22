@@ -1,12 +1,18 @@
 package smartgrid.simulation.aggregator;
 
+import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.LinkedList;
+
+import com.google.gson.Gson;
 
 import smartgrid.simulation.child.ChildAnswer;
 import akka.advancedMessages.ErrorAnswerContent;
 import akka.basicMessages.AnswerContent;
 import akka.basicMessages.BasicAnswer;
 import akka.basicMessages.RequestContent;
+import akka.systemActors.GlobalTime;
 import behavior.BehaviorModel;
 
 public class AggregatorModel extends BehaviorModel {
@@ -17,10 +23,12 @@ public class AggregatorModel extends BehaviorModel {
 	private LinkedList<Integer> listProduction;
 	private LinkedList<Double> listConsumption;
 	
-	public AggregatorModel(LinkedList<Integer> listProduction, 
-			LinkedList<Double> listConsumption) {
-		this.listConsumption = listConsumption;
-		this.listProduction = listProduction;
+	private PrintWriter output;
+	
+	public AggregatorModel(PrintWriter output) {
+		this.listConsumption = new LinkedList<Double>();
+		this.listProduction = new LinkedList<Integer>();
+		this.output = output;
 	}
 
 	@Override
@@ -40,12 +48,7 @@ public class AggregatorModel extends BehaviorModel {
 			overallConsumption += villageData.getConsumption();
 			overallProduction += villageData.getProduction();
 		}
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 		System.out.println("The overall production of the villages is: "  + overallProduction);
 		System.out.println("The overall consumption of the villages is:  "  + overallConsumption);
 		
@@ -54,6 +57,26 @@ public class AggregatorModel extends BehaviorModel {
 		
 		demand = overallConsumption - overallProduction;
 		System.out.println("Demand for additional energy is: " + demand);
+		
+		LocalDateTime time = GlobalTime.currentTime;
+		Gson gson = new Gson();
+
+		if (listConsumption.size() != 0 && listProduction.size() != 0) {
+			HashMap<String, Object> data = new HashMap<String, Object>();
+			data.put("consumption", listConsumption.getLast());
+			data.put("production", listProduction.getLast());
+			data.put("time", time);
+			String sendData = gson.toJson(data);
+			System.out.println(sendData);
+			output.println(sendData);
+		}
+		
+		try {
+			Thread.sleep(4000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

@@ -29,9 +29,6 @@ public class ClientThread implements Runnable {
 	// String buffer for storing chars
 	StringBuilder message = new StringBuilder();
 	
-	private LinkedList<Integer> listProduction;
-	private LinkedList<Double> listConsumption;
-	
 	private SimulationManager simulationManager;
 	
 	/**
@@ -41,8 +38,6 @@ public class ClientThread implements Runnable {
 	public ClientThread(Socket clientSocket) {
 		this.clientSocket = clientSocket;
 		this.running = true;
-		listProduction = new LinkedList<Integer>();
-		listConsumption = new LinkedList<Double>();
 	}
 
 	@Override
@@ -53,70 +48,32 @@ public class ClientThread implements Runnable {
 			output = new PrintWriter(clientSocket.getOutputStream(), true);
 			input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			
-			Gson gson = new Gson();
-			boolean choose = true;
-			while (choose) {
+			while (!clientSocket.isClosed() && clientSocket.isConnected()) {
 				String message = input.readLine();
-				System.out.println("Read message from the client is: "  + message);
+//				System.out.println("Read message from the client is: "  + message);
 				if (message != null) {
 					switch (message) {
 					case "simA":
 						System.out.println("Choosen sim is A");
-						simulationManager = new SimulationManager(listProduction, listConsumption);
-						new Thread(simulationManager).start();
-						choose = false;
+						simulationManager = new SimulationManager(output);
+						simulationManager.start();
 						break;
 					case "simB":
 						System.out.println("Choosen sim is B");
-						choose = false;
 						break;
 					case "simC":
 						System.out.println("Choosen sim is C");
-						choose = false;
+						break;
+					case "stop":
+						simulationManager.stopSimulation();
 						break;
 					default:
 						System.out.println("Please choose another");
 					}
-				}
+				}				
 			}
-
-			while(isRunning()) {
-				while (!clientSocket.isClosed() && clientSocket.isConnected()) {
-					
-					
-					
-					listConsumption = simulationManager.getListConsumption();
-					listProduction = simulationManager.getListProduction();
-					
-//					int consumption = 0;
-//					int production = 0;
-//					for (int i = 0; i < listConsumption.size(); i++) {
-//						consumption += listConsumption.get(i);
-//						production += listProduction.get(i);
-//					}
-					
-					LocalDateTime time = GlobalTime.currentTime;
-					
-					if (listConsumption.size() != 0 && listProduction.size() != 0) {
-						HashMap<String, Object> data = new HashMap<String, Object>();
-						data.put("consumption", listConsumption.getLast());
-						data.put("production", listProduction.getLast());
-						data.put("time", time);
-						String sendData = gson.toJson(data);
-						System.out.println(sendData);
-						output.println(sendData);
-					}
-					
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				close();
-				System.out.println("Client is closed.");
-			}
+			close();
+			System.out.println("Client is closed.");
 		} catch (IOException ioe) {
 			System.out.println("Error! Connection could not be established!");
 			close();

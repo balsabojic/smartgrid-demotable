@@ -1,6 +1,7 @@
 package smartgrid.simulation;
 
 
+import java.io.PrintWriter;
 import java.util.LinkedList;
 
 import smartgrid.server.Server;
@@ -18,15 +19,14 @@ public class Topology {
 	
 	private static String simulationName = "Simulation";
 	
-	public static ActorTopology createTopology(LinkedList<Double> listConsumption,
-			 LinkedList<Integer> listProduction){
+	public static ActorTopology createTopology(PrintWriter output){
 		
 		ActorTopology top = new ActorTopology(simulationName);
 				
 		/*
 		 *  Actor Topology
 		 */
-		top.addActor("master", ActorFactory.createAggregator(listProduction, listConsumption));
+		top.addActor("master", ActorFactory.createAggregator(output));
 		String childName;
 		
 		for (int i = 1; i <= 10; i++) {

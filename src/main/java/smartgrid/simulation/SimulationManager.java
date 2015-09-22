@@ -1,19 +1,17 @@
 package smartgrid.simulation;
 
+import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.LinkedList;
-
 import akka.actor.ActorSystem;
 import simulation.SimulationStarter;
 import topology.ActorTopology;
 
-public class SimulationManager implements Runnable{
+public class SimulationManager extends Thread{
 
 	private ActorTopology topology;
 	
-	private LinkedList<Integer> listProduction;
-	private LinkedList<Double> listConsumption;
+	private PrintWriter output;
 	
 	// 01 Juli 2014, 0:00 
 	public static LocalDateTime startTime = LocalDateTime.of(2014,7,1,12,0);
@@ -21,25 +19,19 @@ public class SimulationManager implements Runnable{
 	public static LocalDateTime endTime = LocalDateTime.of(2014,7,1,20,0);
 	public static Duration timeInterval = Duration.ofMinutes(5);
 	
-	public SimulationManager(LinkedList<Integer> listProduction, 
-			LinkedList<Double> listConsumption) {
-		this.listConsumption = listConsumption;
-		this.listProduction = listProduction;
+	public SimulationManager(PrintWriter output) {
+		this.output = output;
 	}
 	
 	public void startSimulation() {
-		topology = Topology.createTopology(listConsumption, listProduction);		
+		topology = Topology.createTopology(output);		
 		SimulationStarter.saveGridTopologyPlot(topology);   
 		ActorSystem actorSystem = SimulationStarter.initialiseActorSystem(topology);
         SimulationStarter.startSimulation(actorSystem, startTime, endTime, timeInterval);
 	}
-
-	public LinkedList<Integer> getListProduction() {
-		return listProduction;
-	}
-
-	public LinkedList<Double> getListConsumption() {
-		return listConsumption;
+	
+	public void stopSimulation() {
+		SimulationStarter.stopSimulation();
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package smartgrid.simulation;
 
 
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -26,11 +27,10 @@ public abstract class ActorFactory {
 		return result;
 	}
 	
-	public static ActorOptions createAggregator(LinkedList<Integer> listProduction, 
-			LinkedList<Double> listConsumption){
+	public static ActorOptions createAggregator(PrintWriter output){
 		ActorOptions result = new ActorOptions(LoggingMode.MINIMAL,							
 				new HashSet<String>(),new HashSet<String>(),new HashSet<String>(),
-				new AggregatorModel(listProduction, listConsumption),new NoSave());		
+				new AggregatorModel(output),new NoSave());		
 		return result;		
 	}
 }
