@@ -18,10 +18,10 @@ import akka.basicActors.LoggingMode;
 import akka.basicMessages.AnswerContent;
 import akka.basicMessages.BasicAnswer;
 import akka.basicMessages.RequestContent;
-import akka.systemActors.GlobalTime;
 import behavior.BehaviorModel;
 import resultSaving.NoSave;
 import simulation.SimulationStarter;
+import smartgrid.server.transport.TransportData;
 import smartgrid.simulation.factory.ProfileFactory;
 import smartgrid.simulation.factory.ProfileFactoryOne;
 import smartgrid.simulation.factory.Village;
@@ -32,17 +32,12 @@ import topology.ActorTopology;
 
 public class SimulationManager extends BehaviorModel implements Runnable{
 
+	private Simulation simulation;
 	private ActorTopology topology;
 	private String simulationName;
 	private ProfileFactory factory;
 	
 	private PrintWriter output;
-	
-	// 01 Juli 2014, 0:00 
-	public static LocalDateTime startTime = LocalDateTime.of(2014,7,1,12,0);
-	// 01 Juli 2014, 12:00
-	public static LocalDateTime endTime = LocalDateTime.of(2014,7,1,20,0);
-	public static Duration timeInterval = Duration.ofMinutes(5);
 	
 	public SimulationManager(PrintWriter output, String simulationName) {
 		this.output = output;
@@ -60,6 +55,8 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		
 		switch (simulationName)  {
 		case "simA":
+		    simulation = new Simulation(simulationName, LocalDateTime.of(2014,7,1,12,0), 
+		    		LocalDateTime.of(2014,7,1,20,0), Duration.ofMinutes(5));
 			factory = new ProfileFactoryOne();
 			break;
 		case "simB":
@@ -76,9 +73,12 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		village.init();
 		village.startActors();
 		
+		simulation.setVpp(vpp);
+		simulation.setVillage(village);
+		
 		SimulationStarter.saveGridTopologyPlot(topology);   
 		ActorSystem actorSystem = SimulationStarter.initialiseActorSystem(topology);
-        SimulationStarter.startSimulation(actorSystem, startTime, endTime, timeInterval);
+        SimulationStarter.startSimulation(actorSystem, simulation.getStartDate(), simulation.getEndDate(), simulation.getTimeInterval());
 	}
 
 	@Override
@@ -101,6 +101,7 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			if (profile.answerContent instanceof VppAnswer) {
 				VppAnswer answer = (VppAnswer) profile.answerContent;
 				HashMap<String, Double> map = answer.getDataMap();
+				simulation.setVppData(map);
 				for (Entry<String, Double> entry: map.entrySet()) {
 					System.out.println("-----------" + entry.getKey() + " : " + entry.getValue() + "-------------");
 					production += entry.getValue();
@@ -109,6 +110,7 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			else if (profile.answerContent instanceof VillageAnswer) {
 				VillageAnswer answer = (VillageAnswer)profile.answerContent;
 				HashMap<String, Double> map = answer.getDataMap();
+				simulation.setVillageData(map);
 				for (Entry<String, Double> entry: map.entrySet()) {
 					System.out.println("-----------" + entry.getKey() + " : " + entry.getValue() + "-------------");
 					consumption += entry.getValue();
@@ -116,16 +118,12 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			}
 		}
 		
-		LocalDateTime time = GlobalTime.currentTime;
-		Gson gson = new Gson();
-
-		ConcurrentHashMap<String, Object> data = new ConcurrentHashMap<String, Object>();
-		data.put("consumption", consumption);
-		data.put("production", production);
+		TransportData transportData = new TransportData(simulation, production, consumption);
 		production = 0;
 		consumption = 0;
-		data.put("time", time);
-		String sendData = gson.toJson(data);
+		
+		Gson gson = new Gson();
+		String sendData = gson.toJson(transportData);
 		System.out.println(sendData);
 		output.println(sendData);
 		
