@@ -30,9 +30,9 @@ public class VillageProfileAggregator extends BasicVillageModel {
 	}
 
 	@Override
-	public void init(LocalDateTime time, int initPower) {
+	public void init(LocalDateTime time) {
 		for (BasicVillageModel profile: listVillageProfiles) {
-			profile.init(time, initPower);
+			profile.init(time);
 		}
 	}
 	

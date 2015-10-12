@@ -21,16 +21,16 @@ public class SolarModel extends BasicVppModel{
 	private SolarAnswer answer;
 	private String name;
 	
-	public SolarModel(String name) {
+	public SolarModel(String name, int initPower) {
 		this.answer = new SolarAnswer(name);
 		this.name = name;
+		this.initPower = initPower;
 	}
 	
 	// Set the power in KW 1000 x power
 	@Override
-	public void init(LocalDateTime time, int initPower) {
+	public void init(LocalDateTime time) {
 		this.time = time;
-		this.initPower = initPower;
 	}
 
 	@Override

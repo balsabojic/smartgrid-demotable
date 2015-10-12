@@ -21,8 +21,9 @@ public class HouseModel extends BasicVillageModel {
 	private LocalDateTime time;
 	private double initPower;
 	
-	public HouseModel(String name) {
+	public HouseModel(String name, int initPower) {
 		this.name = name;
+		this.initPower = initPower;	
 		answer = new HouseAnswer(name);
 	}
 	
@@ -55,9 +56,8 @@ public class HouseModel extends BasicVillageModel {
 	}
 
 	@Override
-	public void init(LocalDateTime time, int initPower) {
-		this.time = time;
-		this.initPower = initPower;		
+	public void init(LocalDateTime time) {
+		this.time = time;	
 	}
 
 	@Override

@@ -29,9 +29,9 @@ public class VppProfileAggregator extends BasicVppModel {
 	}
 	
 	@Override
-	public void init(LocalDateTime time, int initPower) {
+	public void init(LocalDateTime time) {
 		for (BasicVppModel profile: listVppProfiles) {
-			profile.init(time, initPower);
+			profile.init(time);
 		}
 	}
 	

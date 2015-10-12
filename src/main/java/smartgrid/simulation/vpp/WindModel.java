@@ -21,15 +21,15 @@ public class WindModel extends BasicVppModel {
 	private WindAnswer answer;
 	private String name;
 
-	public WindModel(String name) {
+	public WindModel(String name, int initPower) {
 		this.answer = new WindAnswer(name);
 		this.name = name;
+		this.initPower = initPower;
 	}
 	
 	@Override
-	public void init(LocalDateTime time, int initPower) {
+	public void init(LocalDateTime time) {
 		this.time = time;
-		this.initPower = initPower;
 	}
 
 	@Override

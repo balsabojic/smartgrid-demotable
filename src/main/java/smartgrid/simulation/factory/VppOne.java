@@ -18,13 +18,13 @@ public class VppOne implements Vpp {
 		this.name = name + "/vpp";
 		vppAggregator = new VppProfileAggregator(this.name);
 		
-		vppAggregator.addProfile(new SolarModel(this.name + "/solar"));
-		vppAggregator.addProfile(new WindModel(this.name + "/wind"));
+		vppAggregator.addProfile(new SolarModel(this.name + "/solar", 10));
+		vppAggregator.addProfile(new WindModel(this.name + "/wind", 10));
 		
 	}
 	
 	public void init() {
-		vppAggregator.init(LocalDateTime.of(2013, 8, 7, 12, 0), 10);
+		vppAggregator.init(LocalDateTime.of(2013, 8, 7, 12, 0));
 	}
 	
 	public void startActors() {

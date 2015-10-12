@@ -21,11 +21,11 @@ public class VillageOne implements Village {
 		this.name = name + "/village";
 		villageAggregator = new VillageProfileAggregator(this.name);
 		
-		villageAggregator.addProfile(new HouseModel(this.name + "/house"));
+		villageAggregator.addProfile(new HouseModel(this.name + "/house", 9000));
 	}
 	
 	public void init() {
-		villageAggregator.init(LocalDateTime.of(2013, 8, 7, 12, 0), 10);
+		villageAggregator.init(LocalDateTime.of(2013, 8, 7, 12, 0));
 	}
 	
 	public void startActors() {

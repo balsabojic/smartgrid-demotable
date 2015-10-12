@@ -8,7 +8,7 @@ import topology.ActorTopology;
 
 public abstract class BasicVillageModel extends BehaviorModel { 
 	
-	public abstract void init(LocalDateTime time, int initPower);
+	public abstract void init(LocalDateTime time);
 	public abstract ActorOptions createActor();
 	public abstract void addActor(ActorTopology topology);
 }

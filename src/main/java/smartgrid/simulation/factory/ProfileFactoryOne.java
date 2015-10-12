@@ -8,7 +8,6 @@ public class ProfileFactoryOne implements ProfileFactory {
 		return new VppOne(name, topology);
 	}
 
-	@Override
 	public Village createVillage(String name, ActorTopology topology) {
 		return new VillageOne(name, topology);
 	}
