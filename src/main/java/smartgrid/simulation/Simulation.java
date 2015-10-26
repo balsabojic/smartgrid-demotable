@@ -136,4 +136,24 @@ public class Simulation {
 		}
 		return data;
 	}
+	
+	public Double getOverallProduction() {
+		Double overall = 0.0;
+		if (vppData != null) {
+			for (Entry<String, Double> entry: vppData.entrySet()) {
+				overall += entry.getValue();
+			}
+		}
+		return overall;
+	}
+	
+	public Double getOverallConsumption() {
+		Double overall = 0.0;
+		if (villageData != null) {
+			for (Entry<String, Double> entry: villageData.entrySet()) {
+				overall += entry.getValue();
+			}
+		}
+		return overall;
+	}
 }

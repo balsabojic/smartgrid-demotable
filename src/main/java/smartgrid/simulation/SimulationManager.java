@@ -36,12 +36,12 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 	private String simulationName;
 	private ProfileFactory factory;
 	
-	private PrintWriter output;
+	private LinkedList<PrintWriter> outputList;
 	
-	public SimulationManager(PrintWriter output, String simulationName) {
-		this.output = output;
+	public SimulationManager(String simulationName) {
 		this.simulationName = simulationName;
 		this.topology = new ActorTopology("Simulation");
+		this.outputList = new LinkedList<PrintWriter>();	
 	}
 	
 	public void stopSimulation() {
@@ -117,14 +117,15 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			}
 		}
 		
-		TransportData transportData = new TransportData(simulation, production, consumption);
-		production = 0;
-		consumption = 0;
+		TransportData transportData = new TransportData(simulation, 
+				simulation.getOverallProduction(), simulation.getOverallConsumption());
 		
 		Gson gson = new Gson();
 		String sendData = gson.toJson(transportData);
 		System.out.println(sendData);
-		output.println(sendData);
+		for (PrintWriter output: outputList) {
+			output.println(sendData);
+		}
 		
 		try {
 			Thread.sleep(4000);
@@ -152,6 +153,18 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 				new HashSet<String>(),new HashSet<String>(),new HashSet<String>(),
 				this, new NoSave());		
 		return result;
+	}
+
+	public Simulation getSimulation() {
+		return simulation;
+	}
+
+	public void setSimulation(Simulation simulation) {
+		this.simulation = simulation;
+	}
+	
+	public void addOutput(PrintWriter output) {
+		outputList.add(output);
 	}
 	
 }

@@ -7,6 +7,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import com.google.gson.Gson;
+
+import smartgrid.server.transport.TransportData;
 import smartgrid.simulation.SimulationManager;
 
 public class ClientThread implements Runnable {
@@ -25,13 +28,16 @@ public class ClientThread implements Runnable {
 	
 	private SimulationManager simulationManager;
 	
+	private Context context;
+	
 	/**
 	 * TODO
 	 * @param clientSocket the socket that we will use for getting and sending data
 	 */
-	public ClientThread(Socket clientSocket) {
+	public ClientThread(Socket clientSocket, Context context) {
 		this.clientSocket = clientSocket;
 		this.running = true;
+		this.context = context;
 	}
 
 	@Override
@@ -43,28 +49,30 @@ public class ClientThread implements Runnable {
 			input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			
 			while (!clientSocket.isClosed() && clientSocket.isConnected()) {
-				String message = input.readLine();
-//				System.out.println("Read message from the client is: "  + message);
-				if (message != null) {
-					switch (message) {
-					case "simA":
-						System.out.println("Choosen sim is A");
-						simulationManager = new SimulationManager(output, "simA");
-						new Thread(simulationManager).start();
-						break;
-					case "simB":
-						System.out.println("Choosen sim is B");
-						break;
-					case "simC":
-						System.out.println("Choosen sim is C");
-						break;
-					case "stop":
-						simulationManager.stopSimulation();
-						break;
-					default:
-						System.out.println("Please choose another");
+				if (input.ready()) {
+					String message = input.readLine();
+	//				System.out.println("Read message from the client is: "  + message);
+					if (message != null) {
+						switch (message) {
+						case "simA":
+							System.out.println("Choosen sim is A");
+							context.startSimulation(message);
+							break;
+						case "simB":
+							System.out.println("Choosen sim is B");
+							break;
+						case "simC":
+							System.out.println("Choosen sim is C");
+							break;
+						case "stop":
+							System.out.println("Simulation is stopped");
+							context.stopSimulation();
+							break;
+						default:
+							System.out.println("Please choose another");
+						}
 					}
-				}				
+				}
 			}
 			close();
 			System.out.println("Client is closed.");
@@ -98,5 +106,9 @@ public class ClientThread implements Runnable {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public PrintWriter getOutput() {
+		return output;
 	}
 }
