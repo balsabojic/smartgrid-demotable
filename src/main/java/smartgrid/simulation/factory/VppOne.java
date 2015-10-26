@@ -19,7 +19,7 @@ public class VppOne implements Vpp {
 		vppAggregator = new VppProfileAggregator(this.name);
 		
 		vppAggregator.addProfile(new SolarModel(this.name + "/solar", 10));
-		vppAggregator.addProfile(new WindModel(this.name + "/wind", 10));
+		vppAggregator.addProfile(new WindModel(this.name + "/wind", 1000));
 		
 	}
 	
