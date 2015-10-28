@@ -45,7 +45,7 @@ public class CommunicationManager implements Communication {
 			ArrayList<String> connectedSensors = new ArrayList<String>();
 			for (ComponentModel component : arduinoClientModel.getComponents()) {
 				connectedSensors.add(component.getName());
-				transferData.put(component.getName(), new TransferData(component.getName(), "0", -1, 0));
+				transferData.put(component.getName(), new TransferData(component.getName(), "0", -1));
 			}
 			if (communicationModel.getName().equals("ethernet")) {
 				EthernetCommunication ethernetCommunication = new EthernetCommunication(communicationModel.getAddress(),
@@ -97,7 +97,6 @@ public class CommunicationManager implements Communication {
 		TransferData data = transferData.get(deviceId);
 		data.setSignal(value);
 		data.setValue(Integer.toString(value));
-		data.setUpdate(1);
 		transferData.put(deviceId, data);
 	}
 }

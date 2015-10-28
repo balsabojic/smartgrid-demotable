@@ -7,29 +7,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import smartgrid.simulation.arduino.commands.CommandFactory;
 import smartgrid.simulation.arduino.connectors.CommunicationManager;
+import smartgrid.simulation.arduino.connectors.TransferData;
 import smartgrid.simulation.arduino.models.DeviceManager;
 import smartgrid.simulation.arduino.models.beans.ArduinoClientModel;
 import smartgrid.simulation.arduino.models.beans.Subdevice;
 
 
-public class ActuatorClientImpl {
+public class ArduinoClient {
     
     // ArduinoClientModel object obtained from the arduino configuration file
     private ArduinoClientModel arduinoClientModel;
 
     private ScheduledExecutorService executor;
-    
     private CommunicationManager communicationManager;
-    
-    private CommandFactory commandFactory;
     
     /**
      * Constructor for creating ActuatorClientImpl
      * @param arduinoConfig the arduinoCofing object obtained from the configuration file
      */
-	public ActuatorClientImpl(ArduinoConfig arduinoConfig) {
+	public ArduinoClient(ArduinoConfig arduinoConfig) {
 		DeviceManager deviceManager = new DeviceManager();
 		deviceManager.loadDevices(arduinoConfig);
 		arduinoClientModel = deviceManager.getArduinoClientModel();
@@ -38,11 +35,19 @@ public class ActuatorClientImpl {
 	
 	public void start() {
 		 System.out.println("Arduino component is started!");
-         commandFactory = new CommandFactory(communicationManager);
-         commandFactory.setupCommunicationManager();
+		 communicationManager.setup();
          executor = Executors.newSingleThreadScheduledExecutor();
-         executor.scheduleAtFixedRate(commandFactory, 0,
-                         1, TimeUnit.SECONDS);
+ 		 executor.scheduleAtFixedRate(communicationManager, 0,
+ 				1, TimeUnit.SECONDS);
+	} 
+	
+	public double getSensorValue(String name) {
+		TransferData data = communicationManager.transferData.get(name);
+		return Double.parseDouble(data.getValue());
+	}
+	
+	public void setSensorValue(String name, int value) {
+		communicationManager.updateSensorValue(name, value);
 	}
 
 	/**
@@ -50,6 +55,7 @@ public class ActuatorClientImpl {
 	 * Should destroy all started threads 
 	 */
 	public void destroy() {
+		communicationManager.close();
 		executor.shutdown();
 		try {
 			executor.awaitTermination(1, TimeUnit.MINUTES);
@@ -85,7 +91,7 @@ public class ActuatorClientImpl {
 		
 		arduinoConfig.setSubdevices(subdevices);
 		
-		ActuatorClientImpl actuator = new ActuatorClientImpl(arduinoConfig);
+		ArduinoClient actuator = new ArduinoClient(arduinoConfig);
 		actuator.start();
 	}
 }

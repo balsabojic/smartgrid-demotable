@@ -89,17 +89,9 @@ public class EthernetCommunication implements Communication {
     						transferData.put(sensorId, sensorUpdate);
     					}
     				}
-    				
-    				// First check if the value is same as previous, if yes, then we don't need to update ActuatorMaster
-    				int update;
-    				if (sensorUpdate.getValue().equals(data.get(sensorId))) {
-    					update = 0;
-    				}
-    				else {
-    					update = 1;
-    				}
+    			
     				// Then update values from sensor
-    				TransferData sensorData = new TransferData(sensorId, data.get(sensorId), -1, update);
+    				TransferData sensorData = new TransferData(sensorId, data.get(sensorId), -1);
     				transferData.put(sensorId, sensorData);
     			}
     		}

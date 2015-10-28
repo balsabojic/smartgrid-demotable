@@ -72,7 +72,6 @@ public class EthernetClientWorker implements Runnable{
                     byte b = (byte) input.read();
                     if ((b == '\r' || b == '\n') && message.length() > 0) {
                         String result = message.toString();
-                        System.out.println(message);
                         String[] parts = result.split("=");
                         String key = parts[0]; 
                         String value = parts[1]; 

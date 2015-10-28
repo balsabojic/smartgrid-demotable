@@ -15,14 +15,11 @@ public class TransferData {
 	private String value;
 	// Flag showing if the sensor needs to be turned on (1), turned off (0), or nothing (-1) 
 	private int signal;
-	// Flag showing if value should be sent to the ActuatorMaster
-	private int update;
 	
-	public TransferData(String deviceId, String value, int signal, int update) {
+	public TransferData(String deviceId, String value, int signal) {
 		this.deviceId = deviceId;
 		this.value = value;
 		this.signal = signal;
-		this.update = update;
 	}
 	public String getDeviceId() {
 		return deviceId;
@@ -41,12 +38,6 @@ public class TransferData {
 	}
 	public void setSignal(int signal) {
 		this.signal = signal;
-	}
-	public int getUpdate() {
-		return update;
-	}
-	public void setUpdate(int update) {
-		this.update = update;
 	}
 	
 }
