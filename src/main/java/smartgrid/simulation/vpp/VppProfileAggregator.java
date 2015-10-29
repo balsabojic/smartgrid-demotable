@@ -11,6 +11,7 @@ import akka.basicMessages.AnswerContent;
 import akka.basicMessages.BasicAnswer;
 import akka.basicMessages.RequestContent;
 import resultSaving.NoSave;
+import smartgrid.simulation.vpp.answers.BiogasAnswer;
 import smartgrid.simulation.vpp.answers.SolarAnswer;
 import smartgrid.simulation.vpp.answers.VppAnswer;
 import smartgrid.simulation.vpp.answers.WindAnswer;
@@ -63,6 +64,11 @@ public class VppProfileAggregator extends BasicVppModel {
 				WindAnswer answer = (WindAnswer) vpp.answerContent;
 				this.answer.updateValue(answer.getName(), answer.getProduction());
 				System.out.println("******** 2 " + answer.getName() + " ******** " + answer.getProduction());
+			}
+			else if (vpp.answerContent instanceof BiogasAnswer) {
+				BiogasAnswer answer = (BiogasAnswer) vpp.answerContent;
+				this.answer.updateValue(answer.getName(), answer.getProduction());
+				System.out.println("******** 3 " + answer.getName() + " ******** " + answer.getProduction());
 			}
 		}
 	}

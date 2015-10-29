@@ -2,6 +2,7 @@ package smartgrid.simulation.factory;
 
 import java.time.LocalDateTime;
 
+import smartgrid.simulation.vpp.BiogasModel;
 import smartgrid.simulation.vpp.SolarModel;
 import smartgrid.simulation.vpp.VppProfileAggregator;
 import smartgrid.simulation.vpp.WindModel;
@@ -20,6 +21,7 @@ public class VppOne implements Vpp {
 		
 		vppAggregator.addProfile(new SolarModel(this.name + "/solar", 10));
 		vppAggregator.addProfile(new WindModel(this.name + "/wind", 1000));
+		vppAggregator.addProfile(new BiogasModel(this.name + "/biogas", 1000));
 		
 	}
 	
