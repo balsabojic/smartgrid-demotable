@@ -3,6 +3,7 @@ package smartgrid.simulation;
 import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -21,10 +22,14 @@ import behavior.BehaviorModel;
 import resultSaving.NoSave;
 import simulation.SimulationStarter;
 import smartgrid.server.transport.TransportData;
+import smartgrid.simulation.arduino.ArduinoClient;
+import smartgrid.simulation.arduino.ArduinoConfig;
+import smartgrid.simulation.arduino.models.beans.Subdevice;
 import smartgrid.simulation.factory.ProfileFactory;
 import smartgrid.simulation.factory.ProfileFactoryOne;
 import smartgrid.simulation.factory.Village;
 import smartgrid.simulation.factory.Vpp;
+import smartgrid.simulation.strategy.StrategyManager;
 import smartgrid.simulation.village.answers.VillageAnswer;
 import smartgrid.simulation.vpp.answers.VppAnswer;
 import topology.ActorTopology;
@@ -38,14 +43,19 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 	
 	private PrintWriter output;
 	
-	public SimulationManager(PrintWriter output, String simulationName) {
+	private ArduinoClient arduinoClient;
+	
+	public SimulationManager(PrintWriter output, String simulationName, ArduinoClient arduinoClient) {
 		this.output = output;
 		this.simulationName = simulationName;
 		this.topology = new ActorTopology("Simulation");
+		this.arduinoClient = arduinoClient;
 	}
 	
 	public void stopSimulation() {
 		SimulationStarter.stopSimulation();
+		arduinoClient.setSensorValue("1.3", 0);
+		arduinoClient.setSensorValue("0.2", 0);
 	}
 
 	@Override
@@ -117,9 +127,55 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			}
 		}
 		
+		int lightSensor = (int)arduinoClient.getSensorValue("12.1");
+		
+		StrategyManager strategyManager = new StrategyManager(lightSensor, 150, 30, 60, 90);
+		strategyManager.optimizeProduction();
+		System.out.println("++++++++++++++++++++++++++++++++++++++++");
+		System.out.println("Solar production: " + strategyManager.getSolarProduction());
+		System.out.println("Solar sensor: " + strategyManager.getSolarSensor());
+		System.out.println("Wind production: " + strategyManager.getWindProduction());
+		System.out.println("Wind sensor: " + strategyManager.getWindSensor());
+		System.out.println("Bio production: " + strategyManager.getBioProduction());
+		System.out.println("Bio sensor: " + strategyManager.getBioSensor());
+		System.out.println("++++++++++++++++++++++++++++++++++++++++");
+		
+		arduinoClient.setSensorValue("1.3", (int)(strategyManager.getWindSensor()/10));
+		arduinoClient.setSensorValue("0.2", (int)(strategyManager.getBioSensor()/10));
+		
+		HashMap<String, Double> updatedVppData = simulation.getVppData();
+		for (Entry<String, Double> entry: updatedVppData.entrySet()) {
+			if (entry.getKey().contains("solar")) {
+				entry.setValue(strategyManager.getSolarProduction());
+			}
+			else if (entry.getKey().contains("wind")) {
+				entry.setValue(strategyManager.getWindProduction());
+			}
+			else if (entry.getKey().contains("bio")) {
+				entry.setValue(strategyManager.getBioProduction());
+			}
+		}
+		simulation.setVppData(updatedVppData);
+		
+//		if (lightSensor < 60 && lightSensor > 30) {
+//			arduinoClient.setSensorValue("1.3", 3);
+//		}
+//		else if (lightSensor < 30) {
+//			arduinoClient.setSensorValue("1.3", 1);
+//		}
+//		else {
+//			arduinoClient.setSensorValue("1.3", 0);
+//		}
+		
 		TransportData transportData = new TransportData(simulation, production, consumption);
 		production = 0;
 		consumption = 0;
+		
+		if (simulation.getProgress() > 97) {
+			// Turn off arduino when simulation is about to over
+			arduinoClient.setSensorValue("1.3", 0);
+			arduinoClient.setSensorValue("0.2", 0);
+		}
 		
 		Gson gson = new Gson();
 		String sendData = gson.toJson(transportData);
@@ -127,7 +183,7 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		output.println(sendData);
 		
 		try {
-			Thread.sleep(4000);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
