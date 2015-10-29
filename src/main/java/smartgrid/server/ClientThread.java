@@ -6,8 +6,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import smartgrid.simulation.SimulationManager;
+import smartgrid.simulation.arduino.ArduinoClient;
+import smartgrid.simulation.arduino.ArduinoConfig;
+import smartgrid.simulation.arduino.models.beans.Subdevice;
 
 public class ClientThread implements Runnable {
 
@@ -25,6 +29,8 @@ public class ClientThread implements Runnable {
 	
 	private SimulationManager simulationManager;
 	
+	private ArduinoClient arduinoClient;
+	
 	/**
 	 * TODO
 	 * @param clientSocket the socket that we will use for getting and sending data
@@ -41,6 +47,7 @@ public class ClientThread implements Runnable {
 			
 			output = new PrintWriter(clientSocket.getOutputStream(), true);
 			input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			createArduinoClient();
 			
 			while (!clientSocket.isClosed() && clientSocket.isConnected()) {
 				String message = input.readLine();
@@ -49,7 +56,7 @@ public class ClientThread implements Runnable {
 					switch (message) {
 					case "simA":
 						System.out.println("Choosen sim is A");
-						simulationManager = new SimulationManager(output, "simA");
+						simulationManager = new SimulationManager(output, "simA", arduinoClient);
 						new Thread(simulationManager).start();
 						break;
 					case "simB":
@@ -98,5 +105,35 @@ public class ClientThread implements Runnable {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void createArduinoClient() {
+		ArduinoConfig arduinoConfig = new ArduinoConfig();
+		arduinoConfig.setHost("192.168.21.234");
+		arduinoConfig.setPort("80");
+		arduinoConfig.setPolling_frequency(1);
+		ArrayList<Subdevice> subdevices = new ArrayList<Subdevice>();
+		
+		Subdevice subdevice1 = new Subdevice();
+		subdevice1.setDeviceCode(12);
+		subdevice1.setPin("A0");
+		subdevice1.setThreshold(20);
+		subdevices.add(subdevice1);
+		
+		Subdevice subdevice2 = new Subdevice();
+		subdevice2.setDeviceCode(0);
+		subdevice2.setPin("8");
+		subdevice2.setThreshold(20);
+		subdevices.add(subdevice2);
+		
+		Subdevice subdevice3 = new Subdevice();
+		subdevice3.setDeviceCode(1);
+		subdevice3.setPin("3");
+		subdevice3.setThreshold(20);
+		subdevices.add(subdevice3);
+		
+		arduinoConfig.setSubdevices(subdevices);
+		arduinoClient = new ArduinoClient(arduinoConfig);
+		arduinoClient.start();
 	}
 }
