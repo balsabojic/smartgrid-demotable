@@ -20,9 +20,9 @@ public class TransportData {
 	public double consumption;
 	public LocalDateTime time;
 	
-	// VPP and Village production and consumption data
-	public HashMap<String, Integer> vpp;
-	public HashMap<String, Integer> village;
+	// VPP and Village data
+	public VppTransportData vpp;
+	public VillageTransportData village;
 	
 	public TransportData(Simulation simulation, double production, double consumption) {
 		this.simulationName = simulation.getSimulationName();
@@ -33,17 +33,7 @@ public class TransportData {
 		this.consumption = consumption;
 		this.production = production;
 		this.time = simulation.getCurrentTime();
-		this.vpp = new HashMap<String, Integer>();
-		this.village = new HashMap<String, Integer>();
-		for (Entry<String, Double> entry: simulation.getVppTransportData().entrySet()) {
-			if (entry != null && entry.getKey() != null && entry.getValue() != null) {
-				vpp.put(entry.getKey(), entry.getValue().intValue());
-			}	
-		}
-		for (Entry<String, Double> entry: simulation.getVillageTransportData().entrySet()) {
-			if (entry != null && entry.getKey() != null && entry.getValue() != null) {
-				village.put(entry.getKey(), entry.getValue().intValue());
-			}
-		}
+		this.vpp = new VppTransportData(simulation);
+		this.village = new VillageTransportData(simulation);
 	}
 }
