@@ -21,7 +21,10 @@ public class VillageOne implements Village {
 		this.name = name + "/village";
 		villageAggregator = new VillageProfileAggregator(this.name);
 		
-		villageAggregator.addProfile(new HouseModel(this.name + "/house", 9000));
+		// village has 100 houses and each has 6000kw - yearly consumption, returning current consumption in kw
+		for (int i = 0; i < 100; i++) {
+			villageAggregator.addProfile(new HouseModel(this.name + "/house" + i, 6000));
+		}
 	}
 	
 	public void init() {
