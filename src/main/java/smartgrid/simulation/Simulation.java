@@ -21,6 +21,7 @@ public class Simulation {
 	private Village village;
 	
 	private HashMap<String, Double> vppData;
+	private HashMap<String, Double> vppUsedData;
 	private HashMap<String, Double> villageData;
 	
 	public Simulation(String simulationName, LocalDateTime startDate, LocalDateTime endDate, Duration timeInterval) {
@@ -136,4 +137,13 @@ public class Simulation {
 		}
 		return data;
 	}
+
+	public HashMap<String, Double> getVppUsedData() {
+		return vppUsedData;
+	}
+
+	public void setVppUsedData(HashMap<String, Double> vppUsedData) {
+		this.vppUsedData = vppUsedData;
+	}
+	
 }
