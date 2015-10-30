@@ -12,7 +12,10 @@ import akka.basicMessages.BasicAnswer;
 import akka.basicMessages.RequestContent;
 import resultSaving.NoSave;
 import scala.collection.mutable.HashMap;
+import smartgrid.simulation.village.answers.CommercialAnswer;
+import smartgrid.simulation.village.answers.FarmAnswer;
 import smartgrid.simulation.village.answers.HouseAnswer;
+import smartgrid.simulation.village.answers.StreetLightAnswer;
 import smartgrid.simulation.village.answers.VillageAnswer;
 import topology.ActorTopology;
 
@@ -60,7 +63,25 @@ public class VillageProfileAggregator extends BasicVillageModel {
 				dataMap.put(answer.getName(), answer.getConsumption());
 				consumption += answer.getConsumption();
 				this.answer.updateValue(answer.getName(), answer.getConsumption());
-				System.out.println("******** 3 " + answer.getName() + " ******** " + answer.getConsumption());
+//				System.out.println("******** 3 " + answer.getName() + " ******** " + answer.getConsumption());
+			}
+			if (village.answerContent instanceof CommercialAnswer) {
+				CommercialAnswer answer = (CommercialAnswer) village.answerContent;
+				dataMap.put(answer.getName(), answer.getConsumption());
+				consumption += answer.getConsumption();
+				this.answer.updateValue(answer.getName(), answer.getConsumption());
+			}
+			if (village.answerContent instanceof FarmAnswer) {
+				FarmAnswer answer = (FarmAnswer) village.answerContent;
+				dataMap.put(answer.getName(), answer.getConsumption());
+				consumption += answer.getConsumption();
+				this.answer.updateValue(answer.getName(), answer.getConsumption());
+			}
+			if (village.answerContent instanceof StreetLightAnswer) {
+				StreetLightAnswer answer = (StreetLightAnswer) village.answerContent;
+				dataMap.put(answer.getName(), answer.getConsumption());
+				consumption += answer.getConsumption();
+				this.answer.updateValue(answer.getName(), answer.getConsumption());
 			}
 		}
 		
