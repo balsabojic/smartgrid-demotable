@@ -3,6 +3,7 @@ package smartgrid.server.transport;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import smartgrid.simulation.Simulation;
 
@@ -20,8 +21,8 @@ public class TransportData {
 	public LocalDateTime time;
 	
 	// VPP and Village production and consumption data
-	public HashMap<String, Double> vpp;
-	public HashMap<String, Double> village;
+	public HashMap<String, Integer> vpp;
+	public HashMap<String, Integer> village;
 	
 	public TransportData(Simulation simulation, double production, double consumption) {
 		this.simulationName = simulation.getSimulationName();
@@ -32,7 +33,17 @@ public class TransportData {
 		this.consumption = consumption;
 		this.production = production;
 		this.time = simulation.getCurrentTime();
-		this.vpp = simulation.getVppTransportData();
-		this.village = simulation.getVillageTransportData();
+		this.vpp = new HashMap<String, Integer>();
+		this.village = new HashMap<String, Integer>();
+		for (Entry<String, Double> entry: simulation.getVppTransportData().entrySet()) {
+			if (entry != null && entry.getKey() != null && entry.getValue() != null) {
+				vpp.put(entry.getKey(), entry.getValue().intValue());
+			}	
+		}
+		for (Entry<String, Double> entry: simulation.getVillageTransportData().entrySet()) {
+			if (entry != null && entry.getKey() != null && entry.getValue() != null) {
+				village.put(entry.getKey(), entry.getValue().intValue());
+			}
+		}
 	}
 }
