@@ -3,7 +3,6 @@ package smartgrid.simulation;
 import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -23,10 +22,10 @@ import resultSaving.NoSave;
 import simulation.SimulationStarter;
 import smartgrid.server.transport.TransportData;
 import smartgrid.simulation.arduino.ArduinoClient;
-import smartgrid.simulation.arduino.ArduinoConfig;
-import smartgrid.simulation.arduino.models.beans.Subdevice;
 import smartgrid.simulation.factory.ProfileFactory;
 import smartgrid.simulation.factory.ProfileFactoryOne;
+import smartgrid.simulation.factory.ProfileFactoryThree;
+import smartgrid.simulation.factory.ProfileFactoryTwo;
 import smartgrid.simulation.factory.Village;
 import smartgrid.simulation.factory.Vpp;
 import smartgrid.simulation.strategy.StrategyManager;
@@ -69,8 +68,14 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			factory = new ProfileFactoryOne();
 			break;
 		case "simB":
+			simulation = new Simulation(simulationName, LocalDateTime.of(2014,11,1,12,0), 
+		    		LocalDateTime.of(2014,11,1,20,0), Duration.ofMinutes(5));
+			factory = new ProfileFactoryTwo();
 			break;
 		case "simC":
+			simulation = new Simulation(simulationName, LocalDateTime.of(2014,7,1,12,0), 
+		    		LocalDateTime.of(2014,7,1,20,0), Duration.ofMinutes(5));
+			factory = new ProfileFactoryThree();
 			break;
 		}
 		
@@ -106,6 +111,11 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 	public void makeDecision() {
 		double production = 0;
 		double consumption = 0;
+		
+		double solarProduction = 0;
+		double windProduction = 0;
+		double biogasProduction = 0;
+		
 		for (BasicAnswer profile: super.answerListReceived) {
 			if (profile.answerContent instanceof VppAnswer) {
 				VppAnswer answer = (VppAnswer) profile.answerContent;
@@ -114,6 +124,15 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 				for (Entry<String, Double> entry: map.entrySet()) {
 					System.out.println("-----------" + entry.getKey() + " : " + entry.getValue() + "-------------");
 					production += entry.getValue();
+					if (entry.getKey().contains("solar")) {
+						solarProduction = entry.getValue();
+					}
+					else if (entry.getKey().contains("wind")) {
+						windProduction = entry.getValue();
+					}
+					else if (entry.getKey().contains("bio")) {
+						biogasProduction = entry.getValue();
+					}
 				}
 			}
 			else if (profile.answerContent instanceof VillageAnswer) {
@@ -121,7 +140,7 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 				HashMap<String, Double> map = answer.getDataMap();
 				simulation.setVillageData(map);
 				for (Entry<String, Double> entry: map.entrySet()) {
-					System.out.println("-----------" + entry.getKey() + " : " + entry.getValue() + "-------------");
+//					System.out.println("-----------" + entry.getKey() + " : " + entry.getValue() + "-------------");
 					consumption += entry.getValue();
 				}
 			}
@@ -129,7 +148,7 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		
 		int lightSensor = (int)arduinoClient.getSensorValue("12.1");
 		
-		StrategyManager strategyManager = new StrategyManager(lightSensor, 150, 30, 60, 90);
+		StrategyManager strategyManager = new StrategyManager(lightSensor, solarProduction, windProduction, biogasProduction, consumption);
 		strategyManager.optimizeProduction();
 		System.out.println("++++++++++++++++++++++++++++++++++++++++");
 		System.out.println("Solar production: " + strategyManager.getSolarProduction());
@@ -138,6 +157,7 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		System.out.println("Wind sensor: " + strategyManager.getWindSensor());
 		System.out.println("Bio production: " + strategyManager.getBioProduction());
 		System.out.println("Bio sensor: " + strategyManager.getBioSensor());
+		System.out.println("Consumption: " + strategyManager.getConsumption());
 		System.out.println("++++++++++++++++++++++++++++++++++++++++");
 		
 		arduinoClient.setSensorValue("1.3", (int)(strategyManager.getWindSensor()/10));
@@ -156,16 +176,6 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			}
 		}
 		simulation.setVppData(updatedVppData);
-		
-//		if (lightSensor < 60 && lightSensor > 30) {
-//			arduinoClient.setSensorValue("1.3", 3);
-//		}
-//		else if (lightSensor < 30) {
-//			arduinoClient.setSensorValue("1.3", 1);
-//		}
-//		else {
-//			arduinoClient.setSensorValue("1.3", 0);
-//		}
 		
 		TransportData transportData = new TransportData(simulation, production, consumption);
 		production = 0;
