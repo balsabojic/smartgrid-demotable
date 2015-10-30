@@ -17,6 +17,7 @@ import akka.basicActors.LoggingMode;
 import akka.basicMessages.AnswerContent;
 import akka.basicMessages.BasicAnswer;
 import akka.basicMessages.RequestContent;
+import akka.io.Udp;
 import behavior.BehaviorModel;
 import resultSaving.NoSave;
 import simulation.SimulationStarter;
@@ -163,19 +164,19 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		arduinoClient.setSensorValue("1.3", (int)(strategyManager.getWindSensor()/10));
 		arduinoClient.setSensorValue("0.2", (int)(strategyManager.getBioSensor()/10));
 		
-		HashMap<String, Double> updatedVppData = simulation.getVppData();
-		for (Entry<String, Double> entry: updatedVppData.entrySet()) {
+		HashMap<String, Double> vppData = simulation.getVppData();
+		for (Entry<String, Double> entry: vppData.entrySet()) {
 			if (entry.getKey().contains("solar")) {
 				entry.setValue(strategyManager.getSolarProduction());
 			}
-			else if (entry.getKey().contains("wind")) {
-				entry.setValue(strategyManager.getWindProduction());
-			}
-			else if (entry.getKey().contains("bio")) {
-				entry.setValue(strategyManager.getBioProduction());
-			}
 		}
-		simulation.setVppData(updatedVppData);
+		simulation.setVppData(vppData);
+
+		HashMap<String, Double> updatedVppData = new HashMap<String, Double>();
+		updatedVppData.put("solar", strategyManager.getSolarProduction());
+		updatedVppData.put("wind", strategyManager.getWindProduction());
+		updatedVppData.put("biogas", strategyManager.getBioProduction());
+		simulation.setVppUsedData(updatedVppData);
 		
 		TransportData transportData = new TransportData(simulation, production, consumption);
 		production = 0;
