@@ -56,14 +56,18 @@ public class ClientThread implements Runnable {
 					switch (message) {
 					case "simA":
 						System.out.println("Choosen sim is A");
-						simulationManager = new SimulationManager(output, "simA", arduinoClient);
+						simulationManager = new SimulationManager(output, message, arduinoClient);
 						new Thread(simulationManager).start();
 						break;
 					case "simB":
 						System.out.println("Choosen sim is B");
+						simulationManager = new SimulationManager(output, message, arduinoClient);
+						new Thread(simulationManager).start();
 						break;
 					case "simC":
 						System.out.println("Choosen sim is C");
+						simulationManager = new SimulationManager(output, message, arduinoClient);
+						new Thread(simulationManager).start();
 						break;
 					case "stop":
 						simulationManager.stopSimulation();
