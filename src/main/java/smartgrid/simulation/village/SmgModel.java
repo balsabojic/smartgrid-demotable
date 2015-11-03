@@ -26,15 +26,18 @@ import topology.ActorTopology;
 
 public class SmgModel extends BasicVillageModel {
 	
+	// Default admin user data taken from the database
 	String accessKey = "68a45057-5734-4dad-9f86-ab9e32c4506e";
 	String secretKey = "jg9e65dui5272c45uds3qrf3b8gc71crjq4raq43";
 	
 	private String name;
 	private LocalDateTime time;
 	private SmgAnswer answer;
+	private String smgUrl;
 	
-	public SmgModel(String name) {
+	public SmgModel(String name, String smgUrl) {
 		this.name = name;
+		this.smgUrl = smgUrl;
 		this.answer = new SmgAnswer(name);
 	}
 
@@ -57,32 +60,23 @@ public class SmgModel extends BasicVillageModel {
 	
 	@Override
 	public void makeDecision() {
-		String requestConsumption = "http://localhost:8091/api/openhab/items/solarlog.wrapper.solar_feed-in_watt/state";
+		// Test URL
+		//String requestURL = smgUrl + "/api/health/online";
+		
+		String requestConsumption = smgUrl + "/api/openhab/items/solarlog.wrapper.solar_feed-in_watt/state";
 		String result = sendRequest(requestConsumption);
-		System.out.println("SMG data: " + result);
 		answer.setConsumption(result);
 		
-		String requestBattery = "http://localhost:8091/api/openhab/items/sunny.wrapper.battery_percentage/state";
+		String requestBattery = smgUrl + "/api/openhab/items/sunny.wrapper.battery_percentage/state";
 		result = sendRequest(requestBattery);
-		System.out.println("SMG data: " + result);
 		answer.setBatteryCapacity(result);
 		
-		String requestProduction = "http://localhost:8091/api/openhab/items/solarlog.wrapper.solar_feed-in_watt/state";
+		String requestProduction = smgUrl + "/api/openhab/items/solarlog.wrapper.solar_feed-in_watt/state";
 		result = sendRequest(requestProduction);
-		System.out.println("SMG data: " + result);
 		answer.setProduction(result);
 	}
 	
 	private String sendRequest(String requestURL) {
-		
-//		String requestURL = "http://localhost:8091/api/health/online";
-		// String requestURL =
-		// "http://localhost:8091/api/openhab/items/sunny.wrapper.battery_percentage/state";
-		// String requestURL =
-		// "http://localhost:8091/api/openhab/items/sunny.wrapper.solar_generator_watt/state";
-//		String requestURL = "http://localhost:8091/api/openhab/items/solarlog.wrapper.solar_feed-in_watt/state";
-		// String requestURL = "http://localhost:8091/api/openhab/getJSONFile";
-
 		if (requestURL.contains("?")) {
 			requestURL = requestURL + "&accesskey=" + accessKey;
 		} else {
@@ -110,8 +104,6 @@ public class SmgModel extends BasicVillageModel {
 
 			String output = response.getEntity(String.class);
 
-			System.out.println("Output from Server .... \n");
-			System.out.println(output);
 			return output;
 
 		} catch (Exception e) {
@@ -134,7 +126,6 @@ public class SmgModel extends BasicVillageModel {
 			hash = Base64.encodeBase64String(sha256_HMAC.doFinal(requestURL.getBytes()));
 			
 			signature = java.net.URLEncoder.encode(hash, "utf8");
-			System.out.println(signature);
 			
 			return signature;
 		} catch (Exception e) {
