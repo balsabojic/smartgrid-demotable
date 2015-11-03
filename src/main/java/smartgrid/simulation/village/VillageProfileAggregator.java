@@ -15,6 +15,7 @@ import scala.collection.mutable.HashMap;
 import smartgrid.simulation.village.answers.CommercialAnswer;
 import smartgrid.simulation.village.answers.FarmAnswer;
 import smartgrid.simulation.village.answers.HouseAnswer;
+import smartgrid.simulation.village.answers.SmgAnswer;
 import smartgrid.simulation.village.answers.StreetLightAnswer;
 import smartgrid.simulation.village.answers.VillageAnswer;
 import topology.ActorTopology;
@@ -80,6 +81,13 @@ public class VillageProfileAggregator extends BasicVillageModel {
 			if (village.answerContent instanceof StreetLightAnswer) {
 				StreetLightAnswer answer = (StreetLightAnswer) village.answerContent;
 				dataMap.put(answer.getName(), answer.getConsumption());
+				consumption += answer.getConsumption();
+				this.answer.updateValue(answer.getName(), answer.getConsumption());
+			}
+			if (village.answerContent instanceof SmgAnswer) {
+				SmgAnswer answer = (SmgAnswer) village.answerContent;
+				dataMap.put(answer.getName(), answer.getConsumption());
+				System.out.println("++++++++++++++++++++++++++ SMG: " + answer.getConsumption() + " +++++++++++++++++");
 				consumption += answer.getConsumption();
 				this.answer.updateValue(answer.getName(), answer.getConsumption());
 			}
