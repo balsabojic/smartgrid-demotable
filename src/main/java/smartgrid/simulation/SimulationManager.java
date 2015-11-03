@@ -56,6 +56,19 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		SimulationStarter.stopSimulation();
 		arduinoClient.setSensorValue("1.3", 0);
 		arduinoClient.setSensorValue("0.2", 0);
+		
+		// Sometimes Arduino doesn't stop sensors because of the delay and therefore we are sendning two requests
+		try {
+			Thread.sleep(1000);
+			
+			arduinoClient.setSensorValue("1.3", 0);
+			arduinoClient.setSensorValue("0.2", 0);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
 	}
 
 	@Override
@@ -74,8 +87,8 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			factory = new ProfileFactoryTwo();
 			break;
 		case "simC":
-			simulation = new Simulation(simulationName, LocalDateTime.of(2014,7,1,12,0), 
-		    		LocalDateTime.of(2014,7,1,20,0), Duration.ofMinutes(5));
+			simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,1,6,30), 
+		    		LocalDateTime.of(2013,8,2,6,30), Duration.ofMinutes(15));
 			factory = new ProfileFactoryThree();
 			break;
 		}
