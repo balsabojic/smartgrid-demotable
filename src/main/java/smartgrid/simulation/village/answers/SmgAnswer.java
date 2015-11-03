@@ -31,7 +31,7 @@ public class SmgAnswer implements AnswerContent {
 		DobuleCommand doubleCommand = gson.fromJson(json, DobuleCommand.class);
 		String timeString = doubleCommand.command.time;
 		String valueString = doubleCommand.command.value;
-		Double value = Double.parseDouble(valueString) / 1000;
+		Double value = Double.parseDouble(valueString);
 		return value;
 	}
 
@@ -40,7 +40,8 @@ public class SmgAnswer implements AnswerContent {
 	}
 
 	public void setConsumption(String json) {
-		this.consumption = parseJsonToObject(json);
+		// Data in kW
+		this.consumption = parseJsonToObject(json) / 1000;
 	}
 	
 	public double getProduction() {
@@ -48,7 +49,8 @@ public class SmgAnswer implements AnswerContent {
 	}
 
 	public void setProduction(String json) {
-		this.production = parseJsonToObject(json);
+		// Data in kW
+		this.production = parseJsonToObject(json) / 1000;
 	}
 
 	public double getBatteryCapacity() {
