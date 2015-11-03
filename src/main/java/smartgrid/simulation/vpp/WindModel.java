@@ -9,6 +9,7 @@ import akka.basicActors.ActorOptions;
 import akka.basicActors.LoggingMode;
 import akka.basicMessages.AnswerContent;
 import akka.basicMessages.RequestContent;
+import akka.systemActors.GlobalTime;
 import helper.Swmcsv;
 import resultSaving.NoSave;
 import smartgrid.simulation.vpp.answers.WindAnswer;
@@ -46,6 +47,7 @@ public class WindModel extends BasicVppModel {
 
 	@Override
 	public void makeDecision() {
+		LocalDateTime time = GlobalTime.currentTime;
 		double actualPower = initPower * Swmcsv.getSWMProfileWind(time);
 		//Get value in kW
 //		actualPower *= 0.001;
