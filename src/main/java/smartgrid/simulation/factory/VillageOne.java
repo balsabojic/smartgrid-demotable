@@ -27,7 +27,7 @@ public class VillageOne implements Village {
 			villageAggregator.addProfile(new HouseModel(this.name + "/house" + i, 6000));
 		}
 		
-		villageAggregator.addProfile(new SmgModel(this.name + "/smg"));
+		villageAggregator.addProfile(new SmgModel(this.name + "/smg", "http://localhost:8091"));
 	}
 	
 	public void init() {
