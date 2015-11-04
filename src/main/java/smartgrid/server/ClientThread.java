@@ -136,6 +136,12 @@ public class ClientThread implements Runnable {
 		subdevice3.setThreshold(20);
 		subdevices.add(subdevice3);
 		
+		Subdevice subdevice4 = new Subdevice();
+		subdevice4.setDeviceCode(2);
+		subdevice4.setPin("9");
+		subdevice4.setThreshold(20);
+		subdevices.add(subdevice4);
+		
 		arduinoConfig.setSubdevices(subdevices);
 		arduinoClient = new ArduinoClient(arduinoConfig);
 		arduinoClient.start();
