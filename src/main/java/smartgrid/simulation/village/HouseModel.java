@@ -9,6 +9,7 @@ import akka.basicActors.ActorOptions;
 import akka.basicActors.LoggingMode;
 import akka.basicMessages.AnswerContent;
 import akka.basicMessages.RequestContent;
+import akka.systemActors.GlobalTime;
 import helper.standardLastProfil.StandardLastProfil;
 import resultSaving.NoSave;
 import smartgrid.simulation.village.answers.HouseAnswer;
@@ -41,6 +42,7 @@ public class HouseModel extends BasicVillageModel {
 
 	@Override
 	public void makeDecision() {
+		LocalDateTime time = GlobalTime.currentTime;
 		answer.setConsumption(StandardLastProfil.getH0Demand(initPower, time));
 	}
 	
