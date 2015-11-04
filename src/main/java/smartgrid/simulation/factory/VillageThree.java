@@ -3,7 +3,9 @@ package smartgrid.simulation.factory;
 import java.time.LocalDateTime;
 
 import smartgrid.simulation.village.HouseModel;
+import smartgrid.simulation.village.StreetLightModel;
 import smartgrid.simulation.village.VillageProfileAggregator;
+import smartgrid.simulation.village.answers.StreetLightAnswer;
 import topology.ActorTopology;
 
 public class VillageThree implements Village {
@@ -25,6 +27,8 @@ public class VillageThree implements Village {
 		for (int i = 0; i < 100; i++) {
 			villageAggregator.addProfile(new HouseModel(this.name + "/house" + i, 6000));
 		}
+		
+		villageAggregator.addProfile(new StreetLightModel(this.name + "/streetLight", 500000));
 	}
 	
 	public void init() {
