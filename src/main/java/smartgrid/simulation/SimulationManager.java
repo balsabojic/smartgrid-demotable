@@ -17,7 +17,6 @@ import akka.basicActors.LoggingMode;
 import akka.basicMessages.AnswerContent;
 import akka.basicMessages.BasicAnswer;
 import akka.basicMessages.RequestContent;
-import akka.io.Udp;
 import behavior.BehaviorModel;
 import resultSaving.NoSave;
 import simulation.SimulationStarter;
@@ -54,21 +53,34 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 	
 	public void stopSimulation() {
 		SimulationStarter.stopSimulation();
-		arduinoClient.setSensorValue("1.3", 0);
-		arduinoClient.setSensorValue("0.2", 0);
 		
-		// Sometimes Arduino doesn't stop sensors because of the delay and therefore we are sendning two requests
 		try {
-			Thread.sleep(1000);
-			
-			arduinoClient.setSensorValue("1.3", 0);
-			arduinoClient.setSensorValue("0.2", 0);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		
+		// Stop Arduino devices
+		sendArduinoSignal("1.3", 0);
+		sendArduinoSignal("0.2", 0);
+		sendArduinoSignal("2.4", 0);
+		
+		// Sometimes Arduino doesn't stop sensors because of the delay and therefore we are sending two requests
+		sendArduinoSignal("1.3", 0);
+		sendArduinoSignal("0.2", 0);
+		sendArduinoSignal("2.4", 0);
+		
+	}
+	
+	private void sendArduinoSignal(String name, int value) {
+		try {
+			Thread.sleep(400);
+			arduinoClient.setSensorValue(name, value);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -87,7 +99,7 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			factory = new ProfileFactoryTwo();
 			break;
 		case "simC":
-			simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,1,6,30), 
+			simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,1,20,00), 
 		    		LocalDateTime.of(2013,8,2,6,30), Duration.ofMinutes(15));
 			factory = new ProfileFactoryThree();
 			break;
@@ -130,6 +142,8 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		double windProduction = 0;
 		double biogasProduction = 0;
 		
+		int streetValue = 0;
+		
 		for (BasicAnswer profile: super.answerListReceived) {
 			if (profile.answerContent instanceof VppAnswer) {
 				VppAnswer answer = (VppAnswer) profile.answerContent;
@@ -154,7 +168,9 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 				HashMap<String, Double> map = answer.getDataMap();
 				simulation.setVillageData(map);
 				for (Entry<String, Double> entry: map.entrySet()) {
-//					System.out.println("-----------" + entry.getKey() + " : " + entry.getValue() + "-------------");
+					if (entry.getKey().contains("street")) {
+						streetValue = entry.getValue().intValue();
+					}
 					consumption += entry.getValue();
 				}
 			}
@@ -174,8 +190,17 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		System.out.println("Consumption: " + strategyManager.getConsumption());
 		System.out.println("++++++++++++++++++++++++++++++++++++++++");
 		
-		arduinoClient.setSensorValue("1.3", (int)(strategyManager.getWindSensor()/10));
-		arduinoClient.setSensorValue("0.2", (int)(strategyManager.getBioSensor()/10));
+		if (streetValue == 0) {
+			System.out.println("DEACTIVATE LIGHT!!!!!!!!");
+			sendArduinoSignal("2.4", 0);
+		}
+		else {
+			System.out.println("ACTIVATE LIGHT!!!!!!!!");
+			sendArduinoSignal("2.4", 1);
+		}
+		
+		sendArduinoSignal("1.3", (int)(strategyManager.getWindSensor()/10));
+		sendArduinoSignal("0.2", (int)(strategyManager.getBioSensor()/10));
 		
 		HashMap<String, Double> vppData = simulation.getVppData();
 		for (Entry<String, Double> entry: vppData.entrySet()) {
@@ -195,16 +220,17 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		production = 0;
 		consumption = 0;
 		
-		if (simulation.getProgress() > 97) {
-			// Turn off arduino when simulation is about to over
-			arduinoClient.setSensorValue("1.3", 0);
-			arduinoClient.setSensorValue("0.2", 0);
-		}
-		
 		Gson gson = new Gson();
 		String sendData = gson.toJson(transportData);
 		System.out.println(sendData);
 		output.println(sendData);
+		
+		if (simulation.getProgress() >= 97) {
+			// Turn off arduino when simulation is about to over
+			sendArduinoSignal("1.3", 0);
+			sendArduinoSignal("0.2", 0);
+			sendArduinoSignal("2.4", 0);
+		}
 		
 		try {
 			Thread.sleep(1000);
