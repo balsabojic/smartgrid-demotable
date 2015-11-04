@@ -9,6 +9,7 @@ import akka.basicActors.ActorOptions;
 import akka.basicActors.LoggingMode;
 import akka.basicMessages.AnswerContent;
 import akka.basicMessages.RequestContent;
+import akka.systemActors.GlobalTime;
 import helper.lastProfil.LastProfilTennet;
 import resultSaving.NoSave;
 import smartgrid.simulation.village.answers.FarmAnswer;
@@ -41,6 +42,11 @@ public class FarmModel extends BasicVillageModel {
 
 	@Override
 	public void makeDecision() {
+		// Return value is in MW, so we need to cast to kW
+		LocalDateTime time = GlobalTime.currentTime;
+		if (time.getYear() == 2013) {
+			time = time.plusYears(1);
+		}
 		answer.setConsumption(LastProfilTennet.getLoadAgriculture(initPower, time) / 1000);
 	}
 	

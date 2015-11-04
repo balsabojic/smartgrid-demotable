@@ -9,6 +9,7 @@ import akka.basicActors.ActorOptions;
 import akka.basicActors.LoggingMode;
 import akka.basicMessages.AnswerContent;
 import akka.basicMessages.RequestContent;
+import akka.systemActors.GlobalTime;
 import helper.lastProfil.LastProfilTennet;
 import resultSaving.NoSave;
 import smartgrid.simulation.village.answers.CommercialAnswer;
@@ -41,7 +42,12 @@ public class CommercialModel extends BasicVillageModel {
 
 	@Override
 	public void makeDecision() {
-		answer.setConsumption(LastProfilTennet.getLoadCommercial(initPower, time));
+		// Return value is in MW, so we need to cast to kW
+		LocalDateTime time = GlobalTime.currentTime;
+		if (time.getYear() == 2013) {
+			time = time.plusYears(1);
+		}
+		answer.setConsumption(LastProfilTennet.getLoadCommercial(initPower, time) / 1000);
 	}
 	
 	@Override
