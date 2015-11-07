@@ -44,6 +44,11 @@ public class SmgAnswer implements AnswerContent {
 		this.consumption = parseJsonToObject(json) / 1000;
 	}
 	
+	public void setConsumption(Double consumption) {
+		// Data in kW
+		this.consumption = consumption;
+	}
+	
 	public double getProduction() {
 		return production;
 	}
@@ -52,6 +57,11 @@ public class SmgAnswer implements AnswerContent {
 		// Data in kW
 		this.production = parseJsonToObject(json) / 1000;
 	}
+	
+	public void setProduction(Double production) {
+		// Data in kW
+		this.production = production;
+	}
 
 	public double getBatteryCapacity() {
 		return batteryCapacity;
@@ -59,6 +69,10 @@ public class SmgAnswer implements AnswerContent {
 
 	public void setBatteryCapacity(String json) {
 		this.batteryCapacity = parseJsonToObject(json);
+	}
+	
+	public void setBatteryCapacity(Double battery) {
+		this.batteryCapacity = battery;
 	}
 
 	public String getName() {
