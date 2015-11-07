@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import smartgrid.simulation.Simulation;
+import smartgrid.simulation.village.answers.SmgAnswer;
 
 public class VillageTransportData {
 	
@@ -33,9 +34,22 @@ public class VillageTransportData {
 				}
 			}
 		}
+		
+		int production = 0;
+		int consumption = 0;
+		int battery = 0;
+		for (Entry<String, SmgAnswer> entry: simulation.getSmgTransportData().entrySet()) {	
+			production += entry.getValue().getProduction();
+			consumption += entry.getValue().getConsumption();
+			battery = (int) entry.getValue().getBatteryCapacity();
+		}
+		
 		village.put("house", (int) house);
 		village.put("farm", (int) farm);
 		village.put("commercial", (int) commercial);
 		village.put("streetLight", (int) streetLight);
+		village.put("smgProduction", production);
+		village.put("smgConsumption", consumption);
+		village.put("smgBattery", battery);
 	}
 }
