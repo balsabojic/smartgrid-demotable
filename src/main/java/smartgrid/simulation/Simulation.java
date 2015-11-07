@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import akka.systemActors.GlobalTime;
-import smartgrid.simulation.factory.Village;
-import smartgrid.simulation.factory.Vpp;
+import smartgrid.simulation.village.answers.SmgAnswer;
 
 public class Simulation {
 	
@@ -16,30 +15,22 @@ public class Simulation {
 	protected LocalDateTime startDate;
 	protected LocalDateTime endDate;
 	protected Duration timeInterval;
-	
-	private Vpp vpp;
-	private Village village;
+	protected LocalDateTime currentTime;
 	
 	private HashMap<String, Double> vppData;
 	private HashMap<String, Double> vppUsedData;
 	private HashMap<String, Double> villageData;
+	private HashMap<String, SmgAnswer> smgData;
 	
-	public Simulation(String simulationName, LocalDateTime startDate, LocalDateTime endDate, Duration timeInterval) {
+	public Simulation(String simulationName, LocalDateTime startDate, LocalDateTime endDate, 
+			Duration timeInterval) {
 		super();
 		this.simulationName = simulationName;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.timeInterval = timeInterval;
 	}
-
-	public void setVpp(Vpp vpp)  {
-		this.vpp = vpp;
-	}
 	
-	public void setVillage(Village village) {
-		this.village = village;
-	}
-
 	public String getSimulationName() {
 		return simulationName;
 	}
@@ -137,6 +128,22 @@ public class Simulation {
 		}
 		return data;
 	}
+	
+	public HashMap<String, SmgAnswer> getSmgTransportData() {
+		HashMap<String, SmgAnswer> data = new HashMap<String, SmgAnswer>();
+		for (Entry<String, SmgAnswer> entry: smgData.entrySet()) {
+			String name = entry.getKey();
+			if (name.contains("/smg")) {
+				String[] parts = name.split("/");
+				name = parts[parts.length - 1];
+				data.put(name, entry.getValue());
+			}
+			else {
+				data.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return data;
+	}
 
 	public HashMap<String, Double> getVppUsedData() {
 		return vppUsedData;
@@ -144,6 +151,18 @@ public class Simulation {
 
 	public void setVppUsedData(HashMap<String, Double> vppUsedData) {
 		this.vppUsedData = vppUsedData;
+	}
+
+	public HashMap<String, SmgAnswer> getSmgData() {
+		return smgData;
+	}
+
+	public void setSmgData(HashMap<String, SmgAnswer> smgData) {
+		this.smgData = smgData;
+	}
+
+	public void setCurrentTime(LocalDateTime currentTime) {
+		this.currentTime = currentTime;
 	}
 	
 }
