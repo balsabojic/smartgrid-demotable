@@ -14,6 +14,7 @@ public class TransportData {
 	public LocalDateTime startDate;
 	public LocalDateTime endDate;
 	public Duration timeInterval;
+	public LocalDateTime currentTime;
 	
 	public long progress;
 	public double production;
@@ -30,6 +31,7 @@ public class TransportData {
 		this.endDate = simulation.getEndDate();
 		this.timeInterval = simulation.getTimeInterval();
 		this.progress = simulation.getProgress();
+		this.currentTime = simulation.getCurrentTime();
 		this.consumption = consumption;
 		this.production = production;
 		this.time = simulation.getCurrentTime();
