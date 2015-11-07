@@ -87,9 +87,12 @@ public class VillageProfileAggregator extends BasicVillageModel {
 			if (village.answerContent instanceof SmgAnswer) {
 				SmgAnswer answer = (SmgAnswer) village.answerContent;
 				dataMap.put(answer.getName(), answer.getConsumption());
-				System.out.println("++++++++++++++++++++++++++ SMG: " + answer.getConsumption() + " +++++++++++++++++");
+				System.out.println("++++++++++++++++++++++++++ SMG consumption: " + answer.getConsumption() + " +++++++++++++++++");
+				System.out.println("++++++++++++++++++++++++++ SMG production: " + answer.getProduction() + " +++++++++++++++++");
+				System.out.println("++++++++++++++++++++++++++ SMG battery: " + answer.getBatteryCapacity() + " +++++++++++++++++");
 				consumption += answer.getConsumption();
 				this.answer.updateValue(answer.getName(), answer.getConsumption());
+				this.answer.updateSmg(answer.getName(), answer);
 			}
 		}
 		

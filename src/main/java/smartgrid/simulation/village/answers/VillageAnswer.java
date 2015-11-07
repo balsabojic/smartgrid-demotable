@@ -3,13 +3,16 @@ package smartgrid.simulation.village.answers;
 import java.util.HashMap;
 
 import akka.basicMessages.AnswerContent;
+import smartgrid.simulation.village.SmgModel;
 
 public class VillageAnswer implements AnswerContent {
 	
 	private HashMap<String, Double> dataMap = new HashMap<String, Double>();
+	private HashMap<String, SmgAnswer> smgMap = new HashMap<String, SmgAnswer>();
 	
 	public VillageAnswer() {
 		dataMap = new HashMap<String, Double>();
+		smgMap = new HashMap<String, SmgAnswer>();
 	}
 
 	public HashMap<String, Double> getDataMap() {
@@ -24,4 +27,15 @@ public class VillageAnswer implements AnswerContent {
 		dataMap.put(key, value);
 	}
 
+	public HashMap<String, SmgAnswer> getSmgMap() {
+		return smgMap;
+	}
+
+	public void setSmgMap(HashMap<String, SmgAnswer> smgMap) {
+		this.smgMap = smgMap;
+	}
+	
+	public void updateSmg(String key, SmgAnswer answer) {
+		smgMap.put(key, answer);
+	}
 }
