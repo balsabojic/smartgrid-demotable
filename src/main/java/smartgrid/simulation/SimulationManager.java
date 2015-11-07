@@ -17,6 +17,7 @@ import akka.basicActors.LoggingMode;
 import akka.basicMessages.AnswerContent;
 import akka.basicMessages.BasicAnswer;
 import akka.basicMessages.RequestContent;
+import akka.systemActors.GlobalTime;
 import behavior.BehaviorModel;
 import resultSaving.NoSave;
 import simulation.SimulationStarter;
@@ -89,8 +90,8 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		
 		switch (simulationName)  {
 		case "simA":
-		    simulation = new Simulation(simulationName, LocalDateTime.of(2014,7,1,12,0), 
-		    		LocalDateTime.of(2014,7,1,20,0), Duration.ofMinutes(5));
+		    simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,6,12,0), 
+		    		LocalDateTime.of(2013,8,6,20,0), Duration.ofMinutes(5));
 			factory = new ProfileFactoryOne();
 			break;
 		case "simB":
@@ -99,8 +100,8 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			factory = new ProfileFactoryTwo();
 			break;
 		case "simC":
-			simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,1,20,00), 
-		    		LocalDateTime.of(2013,8,2,6,30), Duration.ofMinutes(15));
+			simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,6,20,00), 
+		    		LocalDateTime.of(2013,8,7,6,30), Duration.ofMinutes(15));
 			factory = new ProfileFactoryThree();
 			break;
 		}
@@ -113,8 +114,7 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		village.init();
 		village.startActors();
 		
-		simulation.setVpp(vpp);
-		simulation.setVillage(village);
+		simulation.setCurrentTime(GlobalTime.currentTime);
 		
 		SimulationStarter.saveGridTopologyPlot(topology);   
 		ActorSystem actorSystem = SimulationStarter.initialiseActorSystem(topology);
@@ -167,6 +167,7 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 				VillageAnswer answer = (VillageAnswer)profile.answerContent;
 				HashMap<String, Double> map = answer.getDataMap();
 				simulation.setVillageData(map);
+				simulation.setSmgData(answer.getSmgMap());
 				for (Entry<String, Double> entry: map.entrySet()) {
 					if (entry.getKey().contains("street")) {
 						streetValue = entry.getValue().intValue();
@@ -191,11 +192,9 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		System.out.println("++++++++++++++++++++++++++++++++++++++++");
 		
 		if (streetValue == 0) {
-			System.out.println("DEACTIVATE LIGHT!!!!!!!!");
 			sendArduinoSignal("2.4", 0);
 		}
 		else {
-			System.out.println("ACTIVATE LIGHT!!!!!!!!");
 			sendArduinoSignal("2.4", 1);
 		}
 		
