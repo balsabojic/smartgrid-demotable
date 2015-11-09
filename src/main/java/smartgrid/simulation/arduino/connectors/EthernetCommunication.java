@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,10 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class EthernetCommunication implements Communication {
+	
+	// ConcurrentHashMap for all devices and their values that are read from the sensors as well as signals if sensor needs update
+			// This hash map is thread safe
+	private ConcurrentHashMap<String, TransferData> transferData = new ConcurrentHashMap<String, TransferData>();
 	
 	private static org.slf4j.Logger logger = LoggerFactory
 			.getLogger(EthernetCommunication.class);
@@ -39,12 +44,14 @@ public class EthernetCommunication implements Communication {
      * @param port the port of the pair
      * @param connectedSensors the list of all connected sensors 
      */
-    public EthernetCommunication(String address, String port, ArrayList<String> connectedSensors, String arduinoWrappedData) {
+    public EthernetCommunication(String address, String port, ArrayList<String> connectedSensors, 
+    		String arduinoWrappedData, ConcurrentHashMap<String, TransferData> transferData) {
         int port_number = Integer.parseInt(port);
         this.port = port_number;
         this.address = address;
         this.connectedSensors = connectedSensors;
         this.arduinoWrappedData = arduinoWrappedData;
+        this.transferData = transferData;
     }
 
     /**

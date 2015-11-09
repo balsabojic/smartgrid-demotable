@@ -2,6 +2,7 @@ package smartgrid.simulation.arduino.connectors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import smartgrid.simulation.arduino.models.beans.ArduinoClientModel;
 import smartgrid.simulation.arduino.models.beans.CommunicationModel;
@@ -20,6 +21,10 @@ public class CommunicationManager implements Communication {
     
     // List of all device's communications
     List<Communication> listCommunication = new ArrayList<Communication>();
+    
+    // ConcurrentHashMap for all devices and their values that are read from the sensors as well as signals if sensor needs update
+ 	// This hash map is thread safe
+ 	private ConcurrentHashMap<String, TransferData> transferData = new ConcurrentHashMap<String, TransferData>();
     
     /**
      * The constructor for creating the CommunicationManager
@@ -49,7 +54,9 @@ public class CommunicationManager implements Communication {
 			}
 			if (communicationModel.getName().equals("ethernet")) {
 				EthernetCommunication ethernetCommunication = new EthernetCommunication(communicationModel.getAddress(),
-						communicationModel.getPort(), connectedSensors, arduinoClientModel.getArduinoWrappedData());
+						communicationModel.getPort(), connectedSensors, 
+						arduinoClientModel.getArduinoWrappedData(),
+						transferData);
 				listCommunication.add(ethernetCommunication);
 			}
 		}
@@ -99,4 +106,13 @@ public class CommunicationManager implements Communication {
 		data.setValue(Integer.toString(value));
 		transferData.put(deviceId, data);
 	}
+
+	public ConcurrentHashMap<String, TransferData> getTransferData() {
+		return transferData;
+	}
+
+	public void setTransferData(ConcurrentHashMap<String, TransferData> transferData) {
+		this.transferData = transferData;
+	}
+	
 }

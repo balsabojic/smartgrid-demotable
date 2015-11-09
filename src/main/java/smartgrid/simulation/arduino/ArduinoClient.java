@@ -42,7 +42,7 @@ public class ArduinoClient {
 	} 
 	
 	public double getSensorValue(String name) {
-		TransferData data = communicationManager.transferData.get(name);
+		TransferData data = communicationManager.getTransferData().get(name);
 		return Double.parseDouble(data.getValue());
 	}
 	

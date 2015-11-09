@@ -9,10 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  */
 public interface Communication extends Runnable {
-	
-	// ConcurrentHashMap for all devices and their values that are read from the sensors as well as signals if sensor needs update
-	// This hash map is thread safe
-    ConcurrentHashMap<String, TransferData> transferData = new ConcurrentHashMap<String, TransferData>();
 
 	/**
 	 * Setting up all necessary information and establish communication
