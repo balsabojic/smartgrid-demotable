@@ -84,9 +84,10 @@ public class Simulation {
 		long endTime = endDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 		
 		long duration = endTime - startTime;
+		long offset = timeInterval.getSeconds() * 1000;
 		
 		LocalDateTime currentDate = GlobalTime.currentTime;
-		long currentTime = currentDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - startTime;
+		long currentTime = currentDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - startTime + offset;
 		
 		long progress = (currentTime * 100) / duration;
 
