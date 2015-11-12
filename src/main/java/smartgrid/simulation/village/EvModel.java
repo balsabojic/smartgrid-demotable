@@ -43,11 +43,12 @@ public class EvModel extends BasicVillageModel {
 	public void makeDecision() {
 		// Here we don't have a profile, so we are always returning some value,
 		// strategy manager will decide whether to use it or not depending on the overproduction
-		int power = (int)initPower / 10;
+		int powerMax = (int)(initPower) / 100;
+		int powerMin = (int)(initPower * 0.3) / 100;
 
 		// The value is calculated randomly from 0 to 10% of the initial power
 		Random rand = new Random();
-		int actualPower = rand.nextInt((power - 5) + 1) + 5;
+		int actualPower = rand.nextInt((powerMax - powerMin) + 1) + powerMin;
 		answer.setConsumption(actualPower);
 	}
 
