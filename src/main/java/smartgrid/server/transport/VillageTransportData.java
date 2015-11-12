@@ -16,6 +16,7 @@ public class VillageTransportData {
 		double farm = 0;
 		double commercial = 0;
 		double streetLight = 0;
+		double ev = 0;
 		this.village = new HashMap<String, Integer>();
 		for (Entry<String, Double> entry: simulation.getVillageTransportData().entrySet()) {
 			if (entry != null && entry.getKey() != null && entry.getValue() != null) {
@@ -31,6 +32,9 @@ public class VillageTransportData {
 				}
 				else if (entry.getKey().contains("streetLight")) {
 					streetLight += entry.getValue();
+				}
+				else if (entry.getKey().contains("ev")) {
+					ev += entry.getValue();
 				}
 			}
 		}
@@ -48,6 +52,7 @@ public class VillageTransportData {
 		village.put("farm", (int) farm);
 		village.put("commercial", (int) commercial);
 		village.put("streetLight", (int) streetLight);
+		village.put("ev", (int) ev);
 		village.put("smgProduction", production);
 		village.put("smgConsumption", consumption);
 		village.put("smgBattery", battery);
