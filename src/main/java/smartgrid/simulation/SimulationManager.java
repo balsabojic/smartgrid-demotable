@@ -30,6 +30,7 @@ import smartgrid.simulation.factory.ProfileFactoryTwo;
 import smartgrid.simulation.factory.Village;
 import smartgrid.simulation.factory.Vpp;
 import smartgrid.simulation.strategy.StrategyManager;
+import smartgrid.simulation.village.answers.SmgAnswer;
 import smartgrid.simulation.village.answers.VillageAnswer;
 import smartgrid.simulation.vpp.answers.VppAnswer;
 import topology.ActorTopology;
@@ -44,12 +45,15 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 	private PrintWriter output;
 	
 	private ArduinoClient arduinoClient;
+	private ArduinoClient arduinoClientSmg;
 	
-	public SimulationManager(PrintWriter output, String simulationName, ArduinoClient arduinoClient) {
+	public SimulationManager(PrintWriter output, String simulationName, 
+			ArduinoClient arduinoClient, ArduinoClient arduinoClientSmg) {
 		this.output = output;
 		this.simulationName = simulationName;
 		this.topology = new ActorTopology("Simulation");
 		this.arduinoClient = arduinoClient;
+		this.arduinoClientSmg = arduinoClientSmg;
 	}
 	
 	public void stopSimulation() {
@@ -58,28 +62,26 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		// Stop Arduino devices
-		sendArduinoSignal("1.3", 0);
-		sendArduinoSignal("0.2", 0);
-		sendArduinoSignal("2.4", 0);
+		sendArduinoSignal(arduinoClient, "1.3", 0);
+		sendArduinoSignal(arduinoClient, "0.2", 0);
+		sendArduinoSignal(arduinoClient, "2.4", 0);
 		
 		// Sometimes Arduino doesn't stop sensors because of the delay and therefore we are sending two requests
-		sendArduinoSignal("1.3", 0);
-		sendArduinoSignal("0.2", 0);
-		sendArduinoSignal("2.4", 0);
+		sendArduinoSignal(arduinoClient, "1.3", 0);
+		sendArduinoSignal(arduinoClient, "0.2", 0);
+		sendArduinoSignal(arduinoClient, "2.4", 0);
 		
 	}
 	
-	private void sendArduinoSignal(String name, int value) {
+	private void sendArduinoSignal(ArduinoClient arduino, String name, int value) {
 		try {
 			Thread.sleep(400);
-			arduinoClient.setSensorValue(name, value);
+			arduino.setSensorValue(name, value);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -91,12 +93,12 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		switch (simulationName)  {
 		case "simA":
 		    simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,6,12,0), 
-		    		LocalDateTime.of(2013,8,6,20,0), Duration.ofMinutes(5));
+		    		LocalDateTime.of(2013,8,7,2,0), Duration.ofMinutes(30));
 			factory = new ProfileFactoryOne();
 			break;
 		case "simB":
-			simulation = new Simulation(simulationName, LocalDateTime.of(2014,11,1,12,0), 
-		    		LocalDateTime.of(2014,11,1,20,0), Duration.ofMinutes(5));
+			simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,6,12,0), 
+		    		LocalDateTime.of(2013,8,6,20,0), Duration.ofMinutes(15));
 			factory = new ProfileFactoryTwo();
 			break;
 		case "simC":
@@ -123,13 +125,10 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 
 	@Override
 	public void handleError(LinkedList<ErrorAnswerContent> errors) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void handleRequest() {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -143,6 +142,7 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		double biogasProduction = 0;
 		
 		int streetValue = 0;
+		double batteryStatus = 0;
 		
 		for (BasicAnswer profile: super.answerListReceived) {
 			if (profile.answerContent instanceof VppAnswer) {
@@ -178,9 +178,14 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		}
 		
 		int lightSensor = (int)arduinoClient.getSensorValue("12.1");
+		System.out.println("Light sensor: " + lightSensor);
+		int lightSensorSmg = (int)arduinoClientSmg.getSensorValue("12.1");
+		System.out.println("Light sensor SMG: " + lightSensorSmg);
 		
-		StrategyManager strategyManager = new StrategyManager(lightSensor, solarProduction, windProduction, biogasProduction, consumption);
+		StrategyManager strategyManager = new StrategyManager(lightSensor, solarProduction, windProduction, 
+				biogasProduction, consumption, simulation.getSmgData());
 		strategyManager.optimizeProduction();
+		
 		System.out.println("++++++++++++++++++++++++++++++++++++++++");
 		System.out.println("Solar production: " + strategyManager.getSolarProduction());
 		System.out.println("Solar sensor: " + strategyManager.getSolarSensor());
@@ -192,15 +197,48 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		System.out.println("++++++++++++++++++++++++++++++++++++++++");
 		
 		if (streetValue == 0) {
-			sendArduinoSignal("2.4", 0);
+			sendArduinoSignal(arduinoClient, "2.4", 0);
+			sendArduinoSignal(arduinoClientSmg, "3.3", 0);
 		}
 		else {
-			sendArduinoSignal("2.4", 1);
+			// Check whether we have overproduction and need to turn on or off half of the street lights
+			int streetSensor = strategyManager.getStreetSensor();
+			if (streetSensor == 1) {
+				// TODO Turn on smgArdunio light
+				// add the consumption with new data
+				sendArduinoSignal(arduinoClientSmg, "3.3", 1);
+			}
+			else {
+				// TODO Turn off smgArduino light
+				// reduce the consumption with new data
+				sendArduinoSignal(arduinoClientSmg, "3.3", 0);
+			}
+			sendArduinoSignal(arduinoClient, "2.4", 1);
 		}
 		
-		sendArduinoSignal("1.3", (int)(strategyManager.getWindSensor()/10));
-		sendArduinoSignal("0.2", (int)(strategyManager.getBioSensor()/10));
+		// Set if we have EV working if we have overproduction turn it on
+		if (strategyManager.getEvSensor() == 1) {
+			sendArduinoSignal(arduinoClientSmg, "4.4", 1);
+		}
+		else {
+			sendArduinoSignal(arduinoClientSmg, "4.4", 0);
+		}
+		// Update arduinoClient wind turbine speed
+		sendArduinoSignal(arduinoClient, "1.3", (int)(strategyManager.getWindSensor()/10));
+		// Update arduinoClient led bar
+		sendArduinoSignal(arduinoClient, "0.2", (int)(strategyManager.getBioSensor()/10));
 		
+		// TODO update with the battery data from REST REQUEST
+		for (Entry<String, SmgAnswer> entry: simulation.getSmgData().entrySet()) {
+			if (entry.getValue() != null) {
+				batteryStatus = entry.getValue().getBatteryCapacity();
+				entry.getValue().sendData("/api/openhab/dummy.wrapper.dummy_generation/" + lightSensorSmg);
+				break;
+			}
+		}
+		sendArduinoSignal(arduinoClientSmg, "0.2", (int)(batteryStatus / 10));
+		
+		// Update simulation with new Solar VPP data depending on the light sensor from the strategy manager
 		HashMap<String, Double> vppData = simulation.getVppData();
 		for (Entry<String, Double> entry: vppData.entrySet()) {
 			if (entry.getKey().contains("solar")) {
@@ -209,11 +247,15 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		}
 		simulation.setVppData(vppData);
 
+		// Updated simulation data with new updated VPP data (used energy) from strategy manager
 		HashMap<String, Double> updatedVppData = new HashMap<String, Double>();
 		updatedVppData.put("solar", strategyManager.getSolarProduction());
 		updatedVppData.put("wind", strategyManager.getWindProduction());
 		updatedVppData.put("biogas", strategyManager.getBioProduction());
 		simulation.setVppUsedData(updatedVppData);
+		
+		// Update simulation data with new SMG data from strategy manager
+		simulation.setSmgData(strategyManager.getSmgData());
 		
 		TransportData transportData = new TransportData(simulation, production, consumption);
 		production = 0;
@@ -224,17 +266,16 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		System.out.println(sendData);
 		output.println(sendData);
 		
-		if (simulation.getProgress() >= 97) {
+		if (simulation.getProgress() == 100) {
 			// Turn off arduino when simulation is about to over
-			sendArduinoSignal("1.3", 0);
-			sendArduinoSignal("0.2", 0);
-			sendArduinoSignal("2.4", 0);
+			sendArduinoSignal(arduinoClient, "1.3", 0);
+			sendArduinoSignal(arduinoClient, "0.2", 0);
+			sendArduinoSignal(arduinoClient, "2.4", 0);
 		}
 		
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -242,13 +283,11 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 
 	@Override
 	public AnswerContent returnAnswerContentToSend() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public RequestContent returnRequestContentToSend() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
