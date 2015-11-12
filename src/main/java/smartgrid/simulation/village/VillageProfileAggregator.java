@@ -13,6 +13,7 @@ import akka.basicMessages.RequestContent;
 import resultSaving.NoSave;
 import scala.collection.mutable.HashMap;
 import smartgrid.simulation.village.answers.CommercialAnswer;
+import smartgrid.simulation.village.answers.EvAnswer;
 import smartgrid.simulation.village.answers.FarmAnswer;
 import smartgrid.simulation.village.answers.HouseAnswer;
 import smartgrid.simulation.village.answers.SmgAnswer;
@@ -64,7 +65,6 @@ public class VillageProfileAggregator extends BasicVillageModel {
 				dataMap.put(answer.getName(), answer.getConsumption());
 				consumption += answer.getConsumption();
 				this.answer.updateValue(answer.getName(), answer.getConsumption());
-//				System.out.println("******** 3 " + answer.getName() + " ******** " + answer.getConsumption());
 			}
 			if (village.answerContent instanceof CommercialAnswer) {
 				CommercialAnswer answer = (CommercialAnswer) village.answerContent;
@@ -84,12 +84,15 @@ public class VillageProfileAggregator extends BasicVillageModel {
 				consumption += answer.getConsumption();
 				this.answer.updateValue(answer.getName(), answer.getConsumption());
 			}
+			if (village.answerContent instanceof EvAnswer) {
+				EvAnswer answer = (EvAnswer) village.answerContent;
+				dataMap.put(answer.getName(), answer.getConsumption());
+				consumption += answer.getConsumption();
+				this.answer.updateValue(answer.getName(), answer.getConsumption());
+			}
 			if (village.answerContent instanceof SmgAnswer) {
 				SmgAnswer answer = (SmgAnswer) village.answerContent;
 				dataMap.put(answer.getName(), answer.getConsumption());
-				System.out.println("++++++++++++++++++++++++++ SMG consumption: " + answer.getConsumption() + " +++++++++++++++++");
-				System.out.println("++++++++++++++++++++++++++ SMG production: " + answer.getProduction() + " +++++++++++++++++");
-				System.out.println("++++++++++++++++++++++++++ SMG battery: " + answer.getBatteryCapacity() + " +++++++++++++++++");
 				consumption += answer.getConsumption();
 				this.answer.updateValue(answer.getName(), answer.getConsumption());
 				this.answer.updateSmg(answer.getName(), answer);
