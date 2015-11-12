@@ -66,15 +66,24 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		}
 		
 		// Stop Arduino devices
-		sendArduinoSignal(arduinoClient, "1.3", 0);
-		sendArduinoSignal(arduinoClient, "0.2", 0);
-		sendArduinoSignal(arduinoClient, "2.4", 0);
+		turnOffArduinoDevices();
 		
 		// Sometimes Arduino doesn't stop sensors because of the delay and therefore we are sending two requests
+		turnOffArduinoDevices();
+		
+	}
+	
+	private void turnOffArduinoDevices() {
+		
+		// Arduino VPP
 		sendArduinoSignal(arduinoClient, "1.3", 0);
 		sendArduinoSignal(arduinoClient, "0.2", 0);
 		sendArduinoSignal(arduinoClient, "2.4", 0);
 		
+		// Arduino smg
+		sendArduinoSignal(arduinoClientSmg, "0.2", 0);
+		sendArduinoSignal(arduinoClientSmg, "3.3", 0);
+		sendArduinoSignal(arduinoClientSmg, "4.4", 0);
 	}
 	
 	private void sendArduinoSignal(ArduinoClient arduino, String name, int value) {
@@ -102,8 +111,8 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			factory = new ProfileFactoryTwo();
 			break;
 		case "simC":
-			simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,6,20,00), 
-		    		LocalDateTime.of(2013,8,7,6,30), Duration.ofMinutes(15));
+			simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,6,8,00), 
+		    		LocalDateTime.of(2013,8,10,6,30), Duration.ofMinutes(10));
 			factory = new ProfileFactoryThree();
 			break;
 		}
@@ -284,9 +293,7 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		
 		if (simulation.getProgress() == 100) {
 			// Turn off arduino when simulation is about to over
-			sendArduinoSignal(arduinoClient, "1.3", 0);
-			sendArduinoSignal(arduinoClient, "0.2", 0);
-			sendArduinoSignal(arduinoClient, "2.4", 0);
+			turnOffArduinoDevices();
 		}
 		
 		try {
