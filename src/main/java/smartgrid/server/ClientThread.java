@@ -168,6 +168,18 @@ public class ClientThread implements Runnable {
 		subdevice2.setThreshold(20);
 		subdevices.add(subdevice2);
 		
+		Subdevice subdevice3 = new Subdevice();
+		subdevice3.setDeviceCode(3);
+		subdevice3.setPin("2");
+		subdevice3.setThreshold(20);
+		subdevices.add(subdevice3);
+		
+		Subdevice subdevice4 = new Subdevice();
+		subdevice4.setDeviceCode(4);
+		subdevice4.setPin("3");
+		subdevice4.setThreshold(20);
+		subdevices.add(subdevice4);
+		
 		arduinoConfig.setSubdevices(subdevices);
 		arduinoClientSmg = new ArduinoClient(arduinoConfig);
 		arduinoClientSmg.start();
