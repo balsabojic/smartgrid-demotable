@@ -204,13 +204,21 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			// Check whether we have overproduction and need to turn on or off half of the street lights
 			int streetSensor = strategyManager.getStreetSensor();
 			if (streetSensor == 1) {
-				// TODO Turn on smgArdunio light
-				// add the consumption with new data
+				// Turn on smgArdunio light
 				sendArduinoSignal(arduinoClientSmg, "3.3", 1);
 			}
 			else {
-				// TODO Turn off smgArduino light
-				// reduce the consumption with new data
+				// Turn off smgArduino light
+				// reduce the consumption - use just 50% of the light
+				double streetConsumption = 0;
+				for (Entry<String, Double> entry: simulation.getVillageData().entrySet()) {
+					if (entry.getKey().contains("street")) {
+						streetConsumption = entry.getValue();
+						streetConsumption = streetConsumption / 2;
+						simulation.getVillageData().put(entry.getKey(), streetConsumption);
+						break;
+					}
+				}
 				sendArduinoSignal(arduinoClientSmg, "3.3", 0);
 			}
 			sendArduinoSignal(arduinoClient, "2.4", 1);
@@ -221,8 +229,16 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			sendArduinoSignal(arduinoClientSmg, "4.4", 1);
 		}
 		else {
+			// If we have underproduction we need to cut the EV station from network
+			for (Entry<String, Double> entry: simulation.getVillageData().entrySet()) {
+				if (entry.getKey().contains("ev")) {
+					simulation.getVillageData().put(entry.getKey(), 0.0);
+					break;
+				}
+			}
 			sendArduinoSignal(arduinoClientSmg, "4.4", 0);
 		}
+		
 		// Update arduinoClient wind turbine speed
 		sendArduinoSignal(arduinoClient, "1.3", (int)(strategyManager.getWindSensor()/10));
 		// Update arduinoClient led bar
