@@ -101,7 +101,7 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		
 		switch (simulationName)  {
 		case "simA":
-		    simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,6,12,0), 
+		    simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,6,15,0), 
 		    		LocalDateTime.of(2013,8,7,2,0), Duration.ofMinutes(30));
 			factory = new ProfileFactoryOne();
 			break;
@@ -257,7 +257,16 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		for (Entry<String, SmgAnswer> entry: simulation.getSmgData().entrySet()) {
 			if (entry.getValue() != null) {
 				batteryStatus = entry.getValue().getBatteryCapacity();
-				entry.getValue().sendData("/api/openhab/dummy.wrapper.dummy_generation/" + lightSensorSmg);
+				
+				// In the night send SMG that there is no sun anymore for production
+				LocalDateTime currTime = GlobalTime.currentTime;
+				int hour = currTime.getHour();
+				if (hour < 7 || hour > 20) {
+					entry.getValue().sendData("/api/openhab/dummy.wrapper.dummy_generation/" + 0);
+				}
+				else {
+					entry.getValue().sendData("/api/openhab/dummy.wrapper.dummy_generation/" + lightSensorSmg);
+				}
 				break;
 			}
 		}
