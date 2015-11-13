@@ -19,12 +19,12 @@ public class VppOne implements Vpp {
 		this.name = name + "/vpp";
 		vppAggregator = new VppProfileAggregator(this.name);
 		
-		// 200 kw - initial power of the sloar
-		vppAggregator.addProfile(new SolarModel(this.name + "/solar", 200));
-		// 2 mw - initial power of the wind
-		vppAggregator.addProfile(new WindModel(this.name + "/wind", 2000));
+		// 250 kw - initial power of the sloar
+		vppAggregator.addProfile(new SolarModel(this.name + "/solar", 250));
+		// 200 kw - initial power of the wind
+		vppAggregator.addProfile(new WindModel(this.name + "/wind", 200));
 		// 100 kw - initial power of the biogas
-		vppAggregator.addProfile(new BiogasModel(this.name + "/biogas", 100));
+		vppAggregator.addProfile(new BiogasModel(this.name + "/biogas", 150));
 		
 	}
 	

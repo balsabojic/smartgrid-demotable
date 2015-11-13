@@ -20,11 +20,11 @@ public class VppThree implements Vpp {
 		vppAggregator = new VppProfileAggregator(this.name);
 		
 		// 200 kw - initial power of the sloar
-		vppAggregator.addProfile(new SolarModel(this.name + "/solar", 200));
+		vppAggregator.addProfile(new SolarModel(this.name + "/solar", 300));
 		// 2 mw - initial power of the wind
-		vppAggregator.addProfile(new WindModel(this.name + "/wind", 2000));
+		vppAggregator.addProfile(new WindModel(this.name + "/wind", 250));
 		// 100 kw - initial power of the biogas
-		vppAggregator.addProfile(new BiogasModel(this.name + "/biogas", 100));
+		vppAggregator.addProfile(new BiogasModel(this.name + "/biogas", 150));
 		
 	}
 	
