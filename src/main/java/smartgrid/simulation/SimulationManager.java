@@ -101,13 +101,13 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		
 		switch (simulationName)  {
 		case "simA":
-		    simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,6,15,0), 
-		    		LocalDateTime.of(2013,8,7,2,0), Duration.ofMinutes(30));
+		    simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,6,10,0), 
+		    		LocalDateTime.of(2013,8,7,2,0), Duration.ofMinutes(15));
 			factory = new ProfileFactoryOne();
 			break;
 		case "simB":
-			simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,6,12,0), 
-		    		LocalDateTime.of(2013,8,6,20,0), Duration.ofMinutes(15));
+			simulation = new Simulation(simulationName, LocalDateTime.of(2013,8,6,8,0), 
+		    		LocalDateTime.of(2013,8,7,20,0), Duration.ofMinutes(15));
 			factory = new ProfileFactoryTwo();
 			break;
 		case "simC":
