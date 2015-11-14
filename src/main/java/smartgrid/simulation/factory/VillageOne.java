@@ -40,7 +40,7 @@ public class VillageOne implements Village {
 		villageAggregator.addProfile(new StreetLightModel(this.name + "/streetLight", 100000));
 		villageAggregator.addProfile(new EvModel(this.name + "/ev", 2000));
 		
-//		villageAggregator.addProfile(new SmgModel(this.name + "/smg", "http://192.168.21.231:8091"));
+		villageAggregator.addProfile(new SmgModel(this.name + "/smg", "http://192.168.21.231:8091"));
 	}
 	
 	public void init() {

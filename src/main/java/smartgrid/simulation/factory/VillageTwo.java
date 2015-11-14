@@ -6,6 +6,7 @@ import smartgrid.simulation.village.CommercialModel;
 import smartgrid.simulation.village.EvModel;
 import smartgrid.simulation.village.FarmModel;
 import smartgrid.simulation.village.HouseModel;
+import smartgrid.simulation.village.SmgModel;
 import smartgrid.simulation.village.StreetLightModel;
 import smartgrid.simulation.village.VillageProfileAggregator;
 import topology.ActorTopology;
@@ -40,7 +41,7 @@ public class VillageTwo implements Village {
 		
 		villageAggregator.addProfile(new EvModel(this.name + "/ev", 2000));
 		
-//		villageAggregator.addProfile(new SmgModel(this.name + "/smg", "http://192.168.21.231:8091"));
+		villageAggregator.addProfile(new SmgModel(this.name + "/smg", "http://192.168.21.231:8091"));
 	}
 	
 	public void init() {
