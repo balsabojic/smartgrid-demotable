@@ -48,8 +48,8 @@ public class ClientThread implements Runnable {
 			
 			output = new PrintWriter(clientSocket.getOutputStream(), true);
 			input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-			createArduinoClient();
-			createArduinoClientSmg();
+//			createArduinoClient();
+//			createArduinoClientSmg();
 			
 			while (!clientSocket.isClosed() && clientSocket.isConnected()) {
 				String message = input.readLine();

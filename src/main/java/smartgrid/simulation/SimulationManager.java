@@ -87,12 +87,12 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 	}
 	
 	private void sendArduinoSignal(ArduinoClient arduino, String name, int value) {
-		try {
-			Thread.sleep(400);
-			arduino.setSensorValue(name, value);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(400);
+//			arduino.setSensorValue(name, value);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override
@@ -186,12 +186,12 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 			}
 		}
 		
-		int lightSensor = (int)arduinoClient.getSensorValue("12.1");
-		System.out.println("Light sensor: " + lightSensor);
-		int lightSensorSmg = (int)arduinoClientSmg.getSensorValue("12.1");
-		System.out.println("Light sensor SMG: " + lightSensorSmg);
+//		int lightSensor = (int)arduinoClient.getSensorValue("12.1");
+//		System.out.println("Light sensor: " + lightSensor);
+//		int lightSensorSmg = (int)arduinoClientSmg.getSensorValue("12.1");
+//		System.out.println("Light sensor SMG: " + lightSensorSmg);
 		
-		StrategyManager strategyManager = new StrategyManager(lightSensor, solarProduction, windProduction, 
+		StrategyManager strategyManager = new StrategyManager(100, solarProduction, windProduction, 
 				biogasProduction, consumption, simulation.getSmgData());
 		strategyManager.optimizeProduction();
 		
@@ -254,23 +254,23 @@ public class SimulationManager extends BehaviorModel implements Runnable{
 		sendArduinoSignal(arduinoClient, "0.2", (int)(strategyManager.getBioSensor()/10));
 		
 		// TODO update with the battery data from REST REQUEST
-		for (Entry<String, SmgAnswer> entry: simulation.getSmgData().entrySet()) {
-			if (entry.getValue() != null) {
-				batteryStatus = entry.getValue().getBatteryCapacity();
-				
-				// In the night send SMG that there is no sun anymore for production
-				LocalDateTime currTime = GlobalTime.currentTime;
-				int hour = currTime.getHour();
-				if (hour < 7 || hour > 20) {
-					entry.getValue().sendData("/api/openhab/dummy.wrapper.dummy_generation/" + 0);
-				}
-				else {
-					entry.getValue().sendData("/api/openhab/dummy.wrapper.dummy_generation/" + lightSensorSmg);
-				}
-				break;
-			}
-		}
-		sendArduinoSignal(arduinoClientSmg, "0.2", (int)(batteryStatus / 10));
+//		for (Entry<String, SmgAnswer> entry: simulation.getSmgData().entrySet()) {
+//			if (entry.getValue() != null) {
+//				batteryStatus = entry.getValue().getBatteryCapacity();
+//				
+//				// In the night send SMG that there is no sun anymore for production
+//				LocalDateTime currTime = GlobalTime.currentTime;
+//				int hour = currTime.getHour();
+//				if (hour < 7 || hour > 20) {
+//					entry.getValue().sendData("/api/openhab/dummy.wrapper.dummy_generation/" + 0);
+//				}
+//				else {
+//					entry.getValue().sendData("/api/openhab/dummy.wrapper.dummy_generation/" + lightSensorSmg);
+//				}
+//				break;
+//			}
+//		}
+//		sendArduinoSignal(arduinoClientSmg, "0.2", (int)(batteryStatus / 10));
 		
 		// Update simulation with new Solar VPP data depending on the light sensor from the strategy manager
 		HashMap<String, Double> vppData = simulation.getVppData();

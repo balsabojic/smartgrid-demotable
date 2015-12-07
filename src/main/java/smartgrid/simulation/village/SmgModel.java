@@ -48,39 +48,39 @@ public class SmgModel extends BasicVillageModel {
 		// Test URL
 		//String requestURL = "/api/health/online";
 		
-		String requestConsumption = "/api/openhab/items/dummy.wrapper.dummy_consumption/type/ConsumptionPowermeter";
-		String result = answer.sendRequest(requestConsumption);
-		if (result != null && !result.equals("")) {
-			answer.setConsumption(Double.valueOf(result) / 1000);
-		}
-		else {
-			answer.setConsumption(0.0);
-		}
-		
-		
-		String requestProduction = "/api/openhab/items/dummy.wrapper.dummy_generation/type/ProductionPowermeter";
-		result = answer.sendRequest(requestProduction);
-		if (result != null && !result.equals("")) {
-			answer.setProduction(Double.valueOf(result) / 1000);
-		}
-		else {
-			answer.setProduction(0.0);
-		}
-		
-		String requestBattery = "/api/openhab/items/dummy.wrapper.dummy_battery/type/Battery";
-		result = answer.sendRequest(requestBattery);
-		if (result != null && !result.equals("")) {
-			answer.setBatteryCapacity(Double.valueOf(result));
-		}
-		else{
-			answer.setBatteryCapacity(0.0);
-		}
+//		String requestConsumption = "/api/openhab/items/dummy.wrapper.dummy_consumption/type/ConsumptionPowermeter";
+//		String result = answer.sendRequest(requestConsumption);
+//		if (result != null && !result.equals("")) {
+//			answer.setConsumption(Double.valueOf(result) / 1000);
+//		}
+//		else {
+//			answer.setConsumption(0.0);
+//		}
+//		
+//		
+//		String requestProduction = "/api/openhab/items/dummy.wrapper.dummy_generation/type/ProductionPowermeter";
+//		result = answer.sendRequest(requestProduction);
+//		if (result != null && !result.equals("")) {
+//			answer.setProduction(Double.valueOf(result) / 1000);
+//		}
+//		else {
+//			answer.setProduction(0.0);
+//		}
+//		
+//		String requestBattery = "/api/openhab/items/dummy.wrapper.dummy_battery/type/Battery";
+//		result = answer.sendRequest(requestBattery);
+//		if (result != null && !result.equals("")) {
+//			answer.setBatteryCapacity(Double.valueOf(result));
+//		}
+//		else{
+//			answer.setBatteryCapacity(0.0);
+//		}
 		// SMG Profiles when not using live data
-//		LocalDateTime time = GlobalTime.currentTime;
-//		Double production = ProductionProfleFortiss.getLoadFortissProduction(time);
-//		answer.setProduction(production / 1000);		
-//		Double consumption = ConsumptionProfleFortiss.getLoadFortissConsumption(time);
-//		answer.setConsumption(consumption / 1000);
+		LocalDateTime time = GlobalTime.currentTime;
+		Double production = ProductionProfleFortiss.getLoadFortissProduction(time);
+		answer.setProduction(production / 1000);		
+		Double consumption = ConsumptionProfleFortiss.getLoadFortissConsumption(time);
+		answer.setConsumption(consumption / 1000);
 	}
 
 	@Override

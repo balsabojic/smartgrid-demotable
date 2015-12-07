@@ -62,11 +62,11 @@ public class StrategyManager {
 			double difference = production - consumption;
 			
 			// We have overproduction we can call smg to connect to grid normally
-			if (smgData != null) {
-				for (Entry<String, SmgAnswer> smg : smgData.entrySet()) {
-					smg.getValue().sendData("/api/openhab/dummy.wrapper.dummy_switchgridconnected/1");
-				}
-			}
+//			if (smgData != null) {
+//				for (Entry<String, SmgAnswer> smg : smgData.entrySet()) {
+//					smg.getValue().sendData("/api/openhab/dummy.wrapper.dummy_switchgridconnected/1");
+//				}
+//			}
 			
 			// if overproduction is lower then bioProduction then reduce the production of bioProduction
 			if (difference < bioProduction) {
@@ -111,25 +111,25 @@ public class StrategyManager {
 			double difference = consumption - production;
 			
 			// Ask SMG node to disconnect from a network
-			if (smgData != null) {
-				for (Entry<String, SmgAnswer> smg: smgData.entrySet()) {
-					double smgConsumption = smg.getValue().getConsumption();
-					if (difference > smgConsumption) {
-						smg.getValue().sendData("/api/openhab/dummy.wrapper.dummy_switchgridconnected/0");
-						difference -= smgConsumption;
-						smg.getValue().setConsumption(0.0);
-						smg.getValue().setProduction(0.0);
-						consumption -= smgConsumption;
-					}
-					else if (difference < smgConsumption && difference > 0){
-						smg.getValue().sendData("/api/openhab/dummy.wrapper.dummy_switchgridconnected/0");
-						difference = 0;
-						smg.getValue().setConsumption(0.0);
-						smg.getValue().setProduction(0.0);
-						consumption -= smgConsumption;
-					}
-				}
-			}
+//			if (smgData != null) {
+//				for (Entry<String, SmgAnswer> smg: smgData.entrySet()) {
+//					double smgConsumption = smg.getValue().getConsumption();
+//					if (difference > smgConsumption) {
+//						smg.getValue().sendData("/api/openhab/dummy.wrapper.dummy_switchgridconnected/0");
+//						difference -= smgConsumption;
+//						smg.getValue().setConsumption(0.0);
+//						smg.getValue().setProduction(0.0);
+//						consumption -= smgConsumption;
+//					}
+//					else if (difference < smgConsumption && difference > 0){
+//						smg.getValue().sendData("/api/openhab/dummy.wrapper.dummy_switchgridconnected/0");
+//						difference = 0;
+//						smg.getValue().setConsumption(0.0);
+//						smg.getValue().setProduction(0.0);
+//						consumption -= smgConsumption;
+//					}
+//				}
+//			}
 			
 			if (difference > 0) {
 				streetSensor = 0;
