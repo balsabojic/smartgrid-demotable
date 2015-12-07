@@ -80,7 +80,7 @@ public class SmgModel extends BasicVillageModel {
 		Double production = ProductionProfleFortiss.getLoadFortissProduction(time);
 		answer.setProduction(production / 1000);		
 		Double consumption = ConsumptionProfleFortiss.getLoadFortissConsumption(time);
-		answer.setConsumption(consumption / 1000);
+		answer.setConsumption(0.0);
 	}
 
 	@Override
