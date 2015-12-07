@@ -30,15 +30,15 @@ public class VillageOne implements Village {
 		}
 		
 		for (int i = 0; i < 10; i++) {
-			villageAggregator.addProfile(new FarmModel(this.name + "/farm" + i, 30000));
+			villageAggregator.addProfile(new FarmModel(this.name + "/farm" + i, 20000));
 		}
 		
 		for (int i = 0; i < 15; i++) {
-			villageAggregator.addProfile(new CommercialModel(this.name + "/commercial" + i, 50000));
+			villageAggregator.addProfile(new CommercialModel(this.name + "/commercial" + i, 40000));
 		}
 		
 		villageAggregator.addProfile(new StreetLightModel(this.name + "/streetLight", 100000));
-		villageAggregator.addProfile(new EvModel(this.name + "/ev", 2000));
+//		villageAggregator.addProfile(new EvModel(this.name + "/ev", 2000));
 		
 		villageAggregator.addProfile(new SmgModel(this.name + "/smg", "http://192.168.21.231:8091"));
 	}
